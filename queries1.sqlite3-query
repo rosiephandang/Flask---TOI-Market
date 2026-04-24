@@ -1,0 +1,213 @@
+-- database: ./database.db
+
+CREATE TABLE `users` (
+  `user_id` INTEGER,
+  `username` VARCHAR (20),
+  `email` VARCHAR,
+  `password` VARCHAR,
+  PRIMARY KEY (`user_id`),
+  UNIQUE (`username`, `email`)
+);
+
+
+
+CREATE TABLE `products` (
+  `product_id` INTEGER,
+  `product_name` VARCHAR (20),
+  `description` VARCHAR (100),
+  `price_suggested` INTEGER,
+  `seller_key` INTEGER,
+  `image_url` VARCHAR,
+  `date_posted` DATE,
+  `status` TEXT,
+  `health_hazards` VARCHAR,
+  `likes` INTEGER,
+  PRIMARY KEY (`product_id`),
+  FOREIGN KEY (`seller_key`)
+      REFERENCES `users`(`user_id`)
+);
+
+CREATE TABLE `offers` (
+  `offer_id` INTEGER,
+  `product_key` INTEGER,
+  `seller_key` INTEGER,
+  `offer_price` INTEGER,
+  `message` VARCHAR,
+  `date_sent` DATE,
+  `status` TEXT,
+  `byer_key` INTEGER,
+  PRIMARY KEY (`offer_id`),
+  FOREIGN KEY (`seller_key`)
+      REFERENCES `users`(`user_id`),
+  FOREIGN KEY (`byer_key`)
+      REFERENCES `users`(`user_id`),
+  FOREIGN KEY (`product_key`)
+      REFERENCES `products`(`product_id`)
+);
+
+CREATE TABLE `locations` (
+  `location_id` INTEGER,
+  `location_name` VARCHAR (20),
+  `description` VARCHAR (50),
+  `x_co` VARCHAR,
+  `y_co` VARCHAR,
+  PRIMARY KEY (`location_id`)
+);
+
+CREATE TABLE `meetups` (
+  `meetup_id` INTEGER,
+  `offer_key` INTEGER,
+  `location_key` INTEGER,
+  `meetup_time` DATE,
+  `status` TEXT,
+  PRIMARY KEY (`meetup_id`),
+  FOREIGN KEY (`offer_key`)
+      REFERENCES `offers`(`offer_id`),
+  FOREIGN KEY (`location_key`)
+      REFERENCES `locations`(`location_id`)
+);
+
+CREATE TABLE `alert_type` (
+  `type_id` INTEGER,
+  `type_desc` VARCHAR (20),
+  PRIMARY KEY (`type_id`)
+);
+
+CREATE TABLE `alerts` (
+  `alert_id` INTEGER,
+  `user_key` INTEGER,
+  `offer_key` INTEGER,
+  `alert_type` INTEGER,
+  `message` VARCHAR,
+  `date_created` DATE,
+  `status` TEXT,
+  PRIMARY KEY (`alert_id`),
+  FOREIGN KEY (`alert_type`)
+      REFERENCES `alert_type`(`type_id`),
+  FOREIGN KEY (`user_key`)
+      REFERENCES `users`(`user_id`),
+  FOREIGN KEY (`offer_key`)
+      REFERENCES `offers`(`offer_id`)
+);
+
+
+INSERT INTO users (user_id, username, email, password) VALUES
+(1, 'alice01', 'alice@example.com', 'hashed_pw1'),
+(2, 'bob02', 'bob@example.com', 'hashed_pw2'),
+(3, 'charlie03', 'charlie@example.com', 'hashed_pw3'),
+(4,'dana04','dana04@mail.com','pw'),
+(5,'eli05','eli05@mail.com','pw'),
+(6,'finn06','finn06@mail.com','pw'),
+(7,'gia07','gia07@mail.com','pw'),
+(8,'hana08','hana08@mail.com','pw'),
+(9,'ivan09','ivan09@mail.com','pw'),
+(10,'jade10','jade10@mail.com','pw'),
+(11,'kai11','kai11@mail.com','pw'),
+(12,'luca12','luca12@mail.com','pw'),
+(13,'maya13','maya13@mail.com','pw'),
+(14,'noah14','noah14@mail.com','pw'),
+(15,'zoe15','zoe15@mail.com','pw');
+
+INSERT INTO products (product_id, product_name, description, price_suggested, seller_key, image_url, date_posted, status, health_hazards, likes) VALUES
+(1, 'Sticker Pack', 'Custom vinyl stickers', 10, 1, 'img/stickers.png', '2026-04-20', 'available', 'none', 5),
+(2, '3D Model', 'Printable dragon model', 25, 2, 'img/dragon.png', '2026-04-21', 'available', 'sharp edges', 3),
+(3,'Art Print','Landscape print',15,3,'img/3.png','2026-04-03','sold','none',8),
+(4,'Keychain','Resin keychain',8,4,'img/4.png','2026-04-04','available','small parts',4),
+(5,'Poster','Movie poster',12,5,'img/5.png','2026-04-05','available','none',6),
+(6,'Pins','Custom enamel pins',20,6,'img/6.png','2026-04-06','available','sharp pin',2),
+(7,'Notebook','Handmade notebook',18,7,'img/7.png','2026-04-07','available','none',7),
+(8,'3D Sword','Mini sword model',30,8,'img/8.png','2026-04-08','available','sharp edges',5),
+(9,'Stickers','Meme stickers',9,9,'img/9.png','2026-04-09','available','none',1),
+(10,'Painting','Abstract art',40,10,'img/10.png','2026-04-10','available','none',9),
+(11,'Bracelet','Beaded bracelet',7,11,'img/11.png','2026-04-11','available','small parts',3),
+(12,'Ring','Clay ring',6,12,'img/12.png','2026-04-12','available','fragile',2),
+(13,'Poster Set','3 posters',20,13,'img/13.png','2026-04-13','available','none',6),
+(14,'Figurine','Mini character',22,14,'img/14.png','2026-04-14','available','small parts',4),
+(15,'Print','Character art',14,15,'img/15.png','2026-04-15','available','none',5),
+(16,'Laptop Skin','Custom skin',18,1,'img/16.png','2026-04-16','available','none',3),
+(17,'Badge','School badge',5,2,'img/17.png','2026-04-17','available','sharp pin',2),
+(18,'Poster','Game poster',13,3,'img/18.png','2026-04-18','available','none',6),
+(19,'Sticker Set','Nature theme',11,4,'img/19.png','2026-04-19','available','none',7),
+(20,'3D Model','Spaceship',28,5,'img/20.png','2026-04-20','available','sharp edges',4),
+(21,'Canvas','Mini canvas',19,6,'img/21.png','2026-04-21','available','none',5),
+(22,'Pins','Cute pins',16,7,'img/22.png','2026-04-22','available','sharp pin',3),
+(23,'Poster','Band poster',15,8,'img/23.png','2026-04-23','available','none',6),
+(24,'Keychain','Acrylic charm',9,9,'img/24.png','2026-04-23','available','small parts',2),
+(25,'Art Print','Sci-fi art',21,10,'img/25.png','2026-04-23','available','none',8);
+
+
+INSERT INTO offers (offer_id, product_key, seller_key, offer_price, message, date_sent, status, byer_key) VALUES
+(1, 1, 1, 12, 'Can pick up after school', '2026-04-22', 'pending', 2),
+(2, 2, 2, 20, 'Cash ready', '2026-04-22', 'accepted', 3),
+(3,4,4,7,'After school','2026-04-11','pending',5),
+(4,5,5,10,'Meet tomorrow','2026-04-12','declined',6),
+(5,6,6,18,'Quick deal','2026-04-12','accepted',7),
+(6,7,7,15,'Pickup lunch','2026-04-13','pending',8),
+(7,8,8,25,'Available now','2026-04-13','accepted',9),
+(8,9,9,8,'Meet Friday','2026-04-14','pending',10),
+(9,10,10,35,'Offer price','2026-04-14','accepted',11),
+(10,11,11,6,'After class','2026-04-15','pending',12),
+(11,12,12,5,'Quick buy','2026-04-15','accepted',13),
+(12,13,13,18,'Deal?','2026-04-16','pending',14),
+(13,14,14,20,'Pickup soon','2026-04-16','accepted',15),
+(14,15,15,12,'Can meet','2026-04-17','pending',1),
+(15,16,1,15,'After school','2026-04-17','accepted',3),
+(16,17,2,4,'Meet later','2026-04-18','pending',4),
+(17,18,3,12,'Deal ok','2026-04-18','accepted',5),
+(18,19,4,9,'Pickup','2026-04-19','pending',6),
+(19,20,5,25,'Fast buy','2026-04-19','accepted',7),
+(20,21,6,17,'Lunch meet','2026-04-20','pending',8);
+
+
+INSERT INTO locations (location_id, location_name, description, x_co, y_co) VALUES
+(1, 'Library', 'School library meetup spot', '-43.532', '172.636'),
+(2, 'Cafeteria', 'Main lunch area', '-43.533', '172.635'),
+(3,'Gym','Indoor courts','-43.534','172.634'),
+(4,'Front Gate','School entrance','-43.535','172.633'),
+(5,'Hall','Assembly hall','-43.536','172.632'),
+(6,'Field','Sports field','-43.537','172.631'),
+(7,'Art Room','Creative space','-43.538','172.630'),
+(8,'Tech Block','Computer labs','-43.539','172.629');
+
+
+INSERT INTO meetups (meetup_id, offer_key, location_key, meetup_time, status) VALUES
+(1, 2, 1, '2026-04-25', 'scheduled'),
+(2,5,2,'2026-04-22','completed'),
+(3,7,3,'2026-04-22','scheduled'),
+(4,9,4,'2026-04-23','completed'),
+(5,11,5,'2026-04-23','scheduled'),
+(6,13,6,'2026-04-24','scheduled'),
+(7,15,7,'2026-04-24','completed'),
+(8,17,8,'2026-04-25','scheduled'),
+(9,19,1,'2026-04-25','scheduled'),
+(10,1,2,'2026-04-26','pending');
+
+INSERT INTO alert_type (type_id, type_desc) VALUES
+(1, 'Offer Received'),
+(2, 'Offer Accepted'),
+(3, 'Meetup Scheduled'),
+(4,'Offer Declined');
+
+
+INSERT INTO alerts (alert_id, user_key, offer_key, alert_type, message, date_created, status) VALUES
+(1, 1, 1, 1, 'You received a new offer', '2026-04-22', 'unread'),
+(2, 3, 2, 2, 'Your offer was accepted', '2026-04-23', 'unread'),
+(3,5,3,1,'New offer','2026-04-11','read'),
+(4,6,4,3,'Offer declined','2026-04-12','unread'),
+(5,7,5,2,'Offer accepted','2026-04-12','read'),
+(6,8,6,1,'New offer','2026-04-13','unread'),
+(7,9,7,2,'Offer accepted','2026-04-13','read'),
+(8,10,8,1,'New offer','2026-04-14','unread'),
+(9,11,9,2,'Offer accepted','2026-04-14','read'),
+(10,12,10,1,'New offer','2026-04-15','unread'),
+(11,13,11,2,'Offer accepted','2026-04-15','read'),
+(12,14,12,1,'New offer','2026-04-16','unread'),
+(13,15,13,2,'Offer accepted','2026-04-16','read'),
+(14,1,14,1,'New offer','2026-04-17','unread'),
+(15,3,15,2,'Offer accepted','2026-04-17','read'),
+(16,4,16,1,'New offer','2026-04-18','unread'),
+(17,5,17,2,'Offer accepted','2026-04-18','read'),
+(18,6,18,1,'New offer','2026-04-19','unread'),
+(19,7,19,2,'Offer accepted','2026-04-19','read'),
+(20,8,20,1,'New offer','2026-04-20','unread');
+
