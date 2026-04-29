@@ -4,18 +4,18 @@
 
 
     <!-- 3 grid layout to show aircraft -->
-     <div class="threecolumn">
+<!--     <div class="threecolumn">
         {% for row in results %}
-        <a class="linkpiority" href="{{ url_for('aircraft', id=row[0])}}">
+        <a class="linkpiority" href="{{ url_for('Home', id=row[0])}}">
             <div class="w3-card-4">
                 <!-- the name then the image then the description -->
-                <h2>{{ row[1] }}</h2>
+<!--                <h2>{{ row[1] }}</h2>
                 <img class="planeplane" src="{{ row[2] }}" alt="Image of {{ row[1] }}" style="width:100%">
                 <h3> {{row[3]}} - {{row[4]}}</h3>
             </div>
         </a>
         {% endfor %}
-     </div>
+     </div> -->
 
     
 {% endblock %}

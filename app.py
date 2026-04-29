@@ -1,10 +1,13 @@
 import sqlite3
-from flask import Flask, g, render_template
+from flask import Flask, g, render_template, Blueprint
 
 DATABASE = 'database.db'
 
 #initialise app
 app = Flask(__name__)
+app.config['SECRET KEY'] = 'knjksjmygjhspjmkthjjk'
+
+# views = Blueprint('views',__name__)
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -30,7 +33,7 @@ def home():
     # home page
     sql = """SELECT * FROM users;"""
     results = query_db(sql)
-    return render_template("home.html", results=results)
+    return render_template("layout.html", results=results)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -211,3 +211,9 @@ INSERT INTO alerts (alert_id, user_key, offer_key, alert_type, message, date_cre
 (19,7,19,2,'Offer accepted','2026-04-19','read'),
 (20,8,20,1,'New offer','2026-04-20','unread');
 
+
+SELECT email FROM  users
+WHERE email  NOT GLOB '*[0-9]*';
+
+SELECT product_name, description, price_suggested FROM products
+WHERE price_suggested >10;
