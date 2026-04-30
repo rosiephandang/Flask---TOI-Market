@@ -5,15 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
-    <link rel="stylesheet" href="{{ url_for('static','css', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
     <title>Layout</title>
 </head>
 <body class="w3-container">
     <!--Shared header bar-->
-    <header class="w3-container">
-        <h1>toi market yeyeyeyey</h1>
+    <div class="header">
+    <h1 class="headerlogo"><a href="/" class="headerlogo">Tōī Market</a></h1>
 
-    </header>
+    <ul>
+        <li><a href="/" class="active">Home</a></li>
+        <li class="meh"><a href="#">Nothing</a></li>
+        <li class="meh"><a href="#">Here</a></li>
+        <li class="meh"><a href="#">For Now</a></li>
+
+        <li class="dropdown">
+            <a href="javascript:void(0)" class="dropbtn">damn you</a>
+            <div class="dropdown-content">
+                <a href="#">still</a>
+                <a href="#">nothing</a>
+                <a href="#">here</a>
+            </div>
+        </li>
+    </ul>
+</div>
 
     
 {% block body %}
