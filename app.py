@@ -30,10 +30,60 @@ def query_db(query, args=(), one=False):
 
 @app.route('/')
 def home():
-    # home page
+    # home page along with product viewing & sort
     sql = """SELECT * FROM users;"""
     results = query_db(sql)
     return render_template("layout.html", results=results)
+
+@app.route('/login/<id>')
+def login(id):
+    # login page
+    sql = """SELECT * FROM users;"""
+    results = query_db(sql, (id,), one=True)
+    return render_template("login.html", results=results)
+
+@app.route('/signup/<id>')
+def signup(id):
+    # signup page
+    sql = """SELECT * FROM users;"""
+    results = query_db(sql, (id,), one=True)
+    return render_template("signup.html", results=results)
+
+@app.route('/product/<id>')
+def product(id):
+    # product viewing page
+    sql = """SELECT * FROM users;"""
+    results = query_db(sql, (id,), one=True)
+    return render_template("product.html", results=results)
+
+@app.route('/userprofile/<id>')
+def userprofile(id):
+    # user profile editing page
+    sql = """SELECT * FROM users;"""
+    results = query_db(sql, (id,), one=True)
+    return render_template("userprofile.html", results=results)
+
+@app.route('/sellerprofile/<id>')
+def sellerprofile(id):
+    # seller/other user profile viewing page
+    sql = """SELECT * FROM users;"""
+    results = query_db(sql, (id,), one=True)
+    return render_template("sellerprofile.html", results=results)
+
+@app.route('/meeting/<id>')
+def meeting(id):
+    # meeting page
+    sql = """SELECT * FROM users;"""
+    results = query_db(sql, (id,), one=True)
+    return render_template("meeting.html", results=results)
+
+@app.route('/notifications/<id>')
+def notifications(id):
+    # meeting page
+    sql = """SELECT * FROM users;"""
+    results = query_db(sql, (id,), one=True)
+    return render_template("notifications.html", results=results)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
