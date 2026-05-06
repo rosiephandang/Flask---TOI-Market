@@ -1,88 +1,80 @@
 import sqlite3
-from flask import Flask, g, render_template, Blueprint
+from flask import Flask, g, render_template
 
 DATABASE = 'database.db'
 
-#initialise app
 app = Flask(__name__)
-app.config['SECRET KEY'] = 'knjksjmygjhspjmkthjjk'
+app.config['SECRET_KEY'] = 'your_secret_key_here'
 
-# views = Blueprint('views',__name__)
 
+# ---------- DATABASE ----------
 def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
+    if 'db' not in g:
+        g.db = sqlite3.connect(DATABASE)
+        g.db.row_factory = sqlite3.Row  # allows dict-style access
+    return g.db
+
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
+    db = g.pop('db', None)
     if db is not None:
         db.close()
 
+
 def query_db(query, args=(), one=False):
     cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close() 
-    return (rv[0] if rv else None) if one else rv
+    results = cur.fetchall()
+    cur.close()
+    return (results[0] if results else None) if one else results
 
+
+# ---------- ROUTES ----------
 
 @app.route('/')
 def home():
-    # home page along with product viewing & sort
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql)
-    return render_template("layout.html", results=results)
+    products = query_db("SELECT * FROM products;")
+    return render_template("home.html", products=products)
 
-@app.route('/login/<id>')
-def login(id):
-    # login page
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql, (id,), one=True)
-    return render_template("login.html", results=results)
+@app.route('/login/<int:user_id>')
+def login(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("login.html", user=user)
 
-@app.route('/signup/<id>')
-def signup(id):
-    # signup page
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql, (id,), one=True)
-    return render_template("signup.html", results=results)
 
-@app.route('/product/<id>')
-def product(id):
-    # product viewing page
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql, (id,), one=True)
-    return render_template("product.html", results=results)
+@app.route('/signup/<int:user_id>')
+def signup(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("signup.html", user=user)
 
-@app.route('/userprofile/<id>')
-def userprofile(id):
-    # user profile editing page
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql, (id,), one=True)
-    return render_template("userprofile.html", results=results)
 
-@app.route('/sellerprofile/<id>')
-def sellerprofile(id):
-    # seller/other user profile viewing page
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql, (id,), one=True)
-    return render_template("sellerprofile.html", results=results)
+@app.route('/product/<int:product_id>')
+def product(product_id):
+    product = query_db("SELECT * FROM products WHERE product_id = ?", (product_id,), one=True)
+    return render_template("product.html", product=product)
 
-@app.route('/meeting/<id>')
-def meeting(id):
-    # meeting page
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql, (id,), one=True)
-    return render_template("meeting.html", results=results)
 
-@app.route('/notifications/<id>')
-def notifications(id):
-    # meeting page
-    sql = """SELECT * FROM users;"""
-    results = query_db(sql, (id,), one=True)
-    return render_template("notifications.html", results=results)
+@app.route('/userprofile/<int:user_id>')
+def userprofile(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("userprofile.html", user=user)
+
+
+@app.route('/sellerprofile/<int:user_id>')
+def sellerprofile(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("sellerprofile.html", user=user)
+
+
+@app.route('/meeting/<int:location_id>')
+def meeting(location_id):
+    location = query_db("SELECT * FROM locations WHERE location_id = ?", (location_id,), one=True)
+    return render_template("meeting.html", location=location)
+
+@app.route('/notifications/<int:user_id>')
+def notifications(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("notifications.html", user=user)
 
 
 if __name__ == "__main__":

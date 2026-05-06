@@ -3,36 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
-    <title>Layout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <title>Tōī Market</title>
 </head>
+
 <body class="w3-container">
-    <!--Shared header bar-->
-    <div class="header">
-    <h1 class="headerlogo"><a href="/" class="headerlogo">Tōī Market</a></h1>
+
+<div class="header">
+    <h1 class="headerlogo">
+        <a href="{{ url_for('home') }}">Tōī Market</a>
+    </h1>
 
     <ul>
-        <li><a href="/" class="active">Home</a></li>
-        <li class="meh"><a href="/notifications">Notifications</a></li>
-        <li class="meh"><a href="/meeting">Map</a></li>
+        <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
+
+        <!-- TEMP: using id=1 -->
+        <li><a href="{{ url_for('notifications', user_id=1) }}">Notifications</a></li>
+        <li><a href="{{ url_for('meeting', location_id=1) }}">Map</a></li>
 
         <li class="dropdown">
-            <a href="javascript:void(0)" class="dropbtn">User</a>
+            <a href="#">User</a>
             <div class="dropdown-content">
-                <a href="/login">login</a>
-                <a href="/signup">sign-up</a>
-                <a href="/userprofile">view profile</a>
+                <a href="{{ url_for('login', user_id=1) }}">Login</a>
+                <a href="{{ url_for('signup', user_id=1) }}">Sign Up</a>
+                <a href="{{ url_for('userprofile', user_id=1) }}">Profile</a>
             </div>
         </li>
     </ul>
 </div>
 
-    
-{% block body %}
+{% block body %}{% endblock %}
 
-{% endblock %}
-    
 </body>
 </html>
