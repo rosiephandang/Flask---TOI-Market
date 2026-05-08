@@ -50,15 +50,17 @@ ul li a, .dropbtn {
     padding: 20px;
 }
 
-/* Hover effects */
-ul li a:hover, .dropdown:hover .dropbtn {
-    background-color: #111111;
-}
 
 /* Active link */
 ul li a.active {
     background-color: #108b96;
 }
+
+/* Hover effects */
+ul li a:hover, .dropdown:hover .dropbtn {
+    background-color: #111111;
+}
+
 
 /* Right border styling */
 li.meh, .dropbtn {

@@ -21,15 +21,15 @@
         <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
 
         <!-- TEMP: using id=1 -->
-        <li><a href="{{ url_for('notifications', user_id=1) }}">Notifications</a></li>
-        <li><a href="{{ url_for('meeting', location_id=1) }}">Map</a></li>
+        <li><a href="{{ url_for('notifications', user_id=1) }} " class="active1" >Notifications</a></li>
+        <li><a href="{{ url_for('meeting', location_id=1) }}" class="active2">Map</a></li>
 
         <li class="dropdown">
             <a href="#">User</a>
             <div class="dropdown-content">
-                <a href="{{ url_for('login', user_id=1) }}">Login</a>
-                <a href="{{ url_for('signup', user_id=1) }}">Sign Up</a>
-                <a href="{{ url_for('userprofile', user_id=1) }}">Profile</a>
+                <a href="{{ url_for('login', user_id=1) }}" class="active3">Login</a>
+                <a href="{{ url_for('signup', user_id=1) }}" class="active4">Sign Up</a>
+                <a href="{{ url_for('userprofile', user_id=1) }}" class="active5">Profile</a>
             </div>
         </li>
     </ul>
