@@ -106,3 +106,18 @@ li.dropdown {
     padding:100px;
     font-size: 100px;
 }
+
+.threecolumn{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr ;
+  gap: 50px;
+  padding: 50px;
+}
+
+.planeplane{
+    height: 100%;
+}
+
+.linkpiority{
+  font-size: 10px;
+}
