@@ -33,7 +33,15 @@ def query_db(query, args=(), one=False):
 
 @app.route('/')
 def home():
-    products = query_db("SELECT * FROM products;")
+    products = query_db("""
+    SELECT 
+        products.*,
+        users.username AS seller_username
+    FROM products
+    INNER JOIN users
+    ON products.seller_key = users.user_id;
+""")   
+    print(dict(products[0]))
     return render_template("home.html", products=products)
 
 @app.route('/login/<int:user_id>')
@@ -50,7 +58,14 @@ def signup(user_id):
 
 @app.route('/product/<int:product_id>')
 def product(product_id):
-    product = query_db("SELECT * FROM products WHERE product_id = ?", (product_id,), one=True)
+    product = query_db("""
+    SELECT products.*,
+users.username
+AS seller_username
+FROM products
+INNER JOIN users
+ON products.seller_key = users.user_id
+WHERE products.product_id = ?;""", (product_id,), one=True)
     return render_template("product.html", product=product)
 
 

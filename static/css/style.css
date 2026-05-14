@@ -114,8 +114,9 @@ li.dropdown {
   padding: 50px;
 }
 
-.planeplane{
-    height: 100%;
+.productimage{
+    height: 400px;
+    object-fit: cover;
 }
 
 .linkpiority{

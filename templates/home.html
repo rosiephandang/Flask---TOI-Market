@@ -9,14 +9,15 @@
 {% for product in products %}
     <a class="linkpiority" href="{{ url_for('product', product_id=product['product_id']) }}">
         <div class="w3-card-4">
-            <h2>{{ product['name'] }}</h2>
-
-            <img class="planeplane"
-                src="{{ product[5] }}"
-                alt="Image of {{ product[1] }}" 
+            <img class="productimage"
+                src="{{ product['image_url'] }}"
+                alt="Image of {{ product['product_name'] }}" 
                 style="width:100%">
 
-            <h3>{{ product['description'] }}</h3>
+            <h2>{{ product['product_name'] }}</h2>
+            <h5>Seller: {{ product['seller_username'] }}</h5>
+            <h5>${{ product['price_suggested'] }}</h5>
+            <h5>Likes: {{ product['likes'] }}</h5>
         </div>
     </a>
 {% endfor %}
