@@ -1,6 +1,7 @@
 import sqlite3
-from flask import Flask, g, render_template, request, flash, redirect, url_for
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, g, render_template, request, flash, redirect, url_for, session
+from werkzeug.security import generate_password_hash
+import re
 
 DATABASE = 'database.db'
 
@@ -89,9 +90,33 @@ def about_us(user_id):
     return render_template("about_us.html", user=user)
 
 
+#@app.route('/register', methods=['GET', 'POST'])
+#def register():
+    msg = ''
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM accounts WHERE username = %s', (username,))
+        account = cursor.fetchone()
+        if account:
+            msg = 'Account already exists!'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            msg = 'Invalid email address!'
+        elif not re.match(r'[A-Za-z0-9]+', username):
+            msg = 'Username must contain only letters and numbers!'
+        elif not username or not password or not email:
+            msg = 'Please fill out the form!'
+        else:
+            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s)', (username, password, email))
+            mysql.connection.commit()
+            msg = 'You have successfully registered!'
+    return render_template('register.html', msg=msg)
+
 #  login-signup routes
-@app.route('/signup/<int:user_id>', methods=["GET","POST"])
-def signup(user_id):
+#@app.route('/signup/<int:user_id>', methods=["GET","POST"])
+#def signup(user_id):
     #user=None
     #if the user posts from the signup page
     if request.method == "POST":
@@ -102,20 +127,48 @@ def signup(user_id):
         
         #hash it with the cool secutiry function
         hashed_password = generate_password_hash(password)
-        #write it as a new user to the database
-        sql = "INSERT INTO users (email,username,password) VALUES (?,?,?)"
         query_db(sql,(email,username,hashed_password))
-        if email or username or password == '':
-            print("You must enter in all the boxes.")
+        if not all([email,username,password]):
+            not_filled = "You must enter in all the boxes."
+            return render_template("signup.html", notice=not_filled)
         #message flashes exist in the base.html template and give user feedback
         else:
+            #write it as a new user to the database
+            sql = "INSERT INTO users (email,username,password) VALUES (?,?,?)"
             flash("Sign Up Successful")
             #user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
             return redirect(url_for("home"))
     else:
         return render_template("signup.html", user_id=user_id)
+    
 
-
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    msg = ''
+    if request.method == 'POST':
+        email = request.form['email'].strip().lower()
+        username = request.form['username']
+        password = request.form['password']
+        # validation if fields arent filled
+        if not email or not username or not password:
+            msg = 'Please fill out all fields!'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            msg = 'Invalid email address!'
+        elif not re.match(r'^[A-Za-z0-9]+$', username):
+            msg = 'Username must contain only letters and numbers!'
+        else:
+            # check if email in database
+            account = query_db('SELECT * FROM users WHERE email = ?', (email,),one=True)
+            if account:
+                msg = 'Account already exists!'
+            else:
+                hashed_password = generate_password_hash(password)
+                db = get_db()
+                db.execute('INSERT INTO users (email, username, password) VALUES (?, ?, ?)',(email.lower(), username, hashed_password))
+                db.commit()
+                flash('You have successfully created an account on TOI Market!')
+                return redirect(url_for('home'))
+    return render_template('signup.html', msg=msg)
 
 
 if __name__ == "__main__":

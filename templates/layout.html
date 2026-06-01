@@ -29,13 +29,24 @@
             <a href="#">Account</a>
             <div class="dropdown-content">
                 <a href="{{ url_for('login', user_id=1) }}" class="active4">Login</a>
-                <a href="{{ url_for('signup', user_id=1) }}" class="active5">Sign Up</a>
+                <a href="{{ url_for('signup') }}" class="active5">Sign Up</a>
                 <a href="{{ url_for('userprofile', user_id=1) }}" class="active6">Profile</a>
 
             </div>
         </li>
     </ul>
 </div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="w3-panel w3-green">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
 
 {% block body %}{% endblock %}
 
