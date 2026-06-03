@@ -1,0 +1,28 @@
+{% extends "layout_signed_in.html" %}
+
+{% block body %}
+
+<h1>Hello this is the home page for signed in stuff</h1>
+
+<h2 class="search bar">add search bar here</h2>
+
+<div class="threecolumn">
+{% for product in products %}
+    <a class="linkpiority" href="{{ url_for('product', product_id=product['product_id']) }}">
+        <div class="w3-card-4">
+            <img class="productimage"
+                src="{{ product['image_url'] }}"
+                alt="Image of {{ product['product_name'] }}" 
+                style="width:100%">
+
+            <h2>{{ product['product_name'] }}</h2>
+            <h5>Seller: {{ product['seller_username'] }}</h5>
+            <h5>${{ product['price_suggested'] }}</h5>
+            <h5>Likes: {{ product['likes'] }}</h5>
+        </div>
+    </a>
+{% endfor %}
+</div>
+
+
+{% endblock %}

@@ -43,6 +43,16 @@ def home():
     print(dict(products[0]))
     return render_template("home.html", products=products)
 
+@app.route('/signed_in')
+def home_signed_in():
+    products = query_db("""
+    SELECT products.*, users.username AS seller_username
+    FROM products
+    INNER JOIN users
+    ON products.seller_key = users.user_id;""")   
+    print(dict(products[0]))
+    return render_template("home_signed_in.html", products=products)
+
 @app.route('/login/<int:user_id>')
 def login(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
@@ -154,6 +164,8 @@ def signup():
             msg = 'Please fill out all fields!'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             msg = 'Invalid email address!'
+        elif "@burnside.school.nz" not in email:
+            msg = 'You must have a Burnside High School email to use TOI Market!'
         elif not re.match(r'^[A-Za-z0-9]+$', username):
             msg = 'Username must contain only letters and numbers!'
         else:
@@ -167,7 +179,7 @@ def signup():
                 db.execute('INSERT INTO users (email, username, password) VALUES (?, ?, ?)',(email.lower(), username, hashed_password))
                 db.commit()
                 flash('You have successfully created an account on TOI Market!')
-                return redirect(url_for('home'))
+                return redirect(url_for('home_signed_in'))
     return render_template('signup.html', msg=msg)
 
 
