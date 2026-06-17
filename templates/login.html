@@ -2,6 +2,20 @@
 {% block body %}
     <!-- sign-up page-->
     <h1 class="test">Hello this is the log-in page</h1>
+        <!--little popups to tell u how ur signup is going--> 
+    {% if msg %}
+        <p class="">{{ msg }}</p>
+    {% endif %}
+    <!-- A form to login with -->
+<!-- the ACTION is the route we try to post to! -->
+<form action="/login" method="post">
+    <label for="email">Email</label>
+    <input type="text" name="email" placeholder="Enter Email" required>
+
+    <label for="password">Password</label>
+    <input class="textbox" type="password" name="password" placeholder="Enter Password" required>
+
+    <button type="submit">Login</button>
 
 
     

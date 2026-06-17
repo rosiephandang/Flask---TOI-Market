@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask, g, render_template, request, flash, redirect, url_for, session
-from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 import re
 
 DATABASE = 'database.db'
@@ -53,12 +53,6 @@ def home_signed_in():
     print(dict(products[0]))
     return render_template("home_signed_in.html", products=products)
 
-@app.route('/login/<int:user_id>')
-def login(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("login.html", user=user)
-
-
 @app.route('/product/<int:product_id>')
 def product(product_id):
     product = query_db("""
@@ -99,59 +93,7 @@ def about_us(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
     return render_template("about_us.html", user=user)
 
-
-#@app.route('/register', methods=['GET', 'POST'])
-#def register():
-    msg = ''
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM accounts WHERE username = %s', (username,))
-        account = cursor.fetchone()
-        if account:
-            msg = 'Account already exists!'
-        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address!'
-        elif not re.match(r'[A-Za-z0-9]+', username):
-            msg = 'Username must contain only letters and numbers!'
-        elif not username or not password or not email:
-            msg = 'Please fill out the form!'
-        else:
-            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s)', (username, password, email))
-            mysql.connection.commit()
-            msg = 'You have successfully registered!'
-    return render_template('register.html', msg=msg)
-
-#  login-signup routes
-#@app.route('/signup/<int:user_id>', methods=["GET","POST"])
-#def signup(user_id):
-    #user=None
-    #if the user posts from the signup page
-    if request.method == "POST":
-        #add the new username and hashed password to the database
-        email= request.form.get['email']
-        username = request.form.get['username']
-        password = request.form.get['password']
-        
-        #hash it with the cool secutiry function
-        hashed_password = generate_password_hash(password)
-        query_db(sql,(email,username,hashed_password))
-        if not all([email,username,password]):
-            not_filled = "You must enter in all the boxes."
-            return render_template("signup.html", notice=not_filled)
-        #message flashes exist in the base.html template and give user feedback
-        else:
-            #write it as a new user to the database
-            sql = "INSERT INTO users (email,username,password) VALUES (?,?,?)"
-            flash("Sign Up Successful")
-            #user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-            return redirect(url_for("home"))
-    else:
-        return render_template("signup.html", user_id=user_id)
-    
-
+#signup & login pageeee
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     msg = ''
@@ -182,6 +124,40 @@ def signup():
                 return redirect(url_for('home_signed_in'))
     return render_template('signup.html', msg=msg)
 
+@app.route('/login', methods=["GET","POST"])
+def login():
+    #if the user posts a username and password
+    msg = ''
+    if request.method == "POST":
+        #get the username and password
+        email = request.form['email'].strip().lower()
+        password = request.form['password']
+        if not email or not password:
+            msg = 'Please fill out all fields!'
+        else:
+            sql = "SELECT * FROM users WHERE email = ?"
+            user = query_db(sql, (email,),one=True)
+            if user:
+                #we got a user!!
+                #check password matches-
+                if check_password_hash(user[3],password):
+                    #we are logged in successfully
+                    #Store the username in the session
+                    session['user'] = dict(user)
+                    flash("Logged in successfully!")
+                    return redirect(url_for('home_signed_in'))
+                else:
+                    msg = "Password or email is incorrect."
+            else:
+                msg = "Email does not exist."
+    #render this template regardles of get/post
+    return render_template('login.html', msg = msg)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
