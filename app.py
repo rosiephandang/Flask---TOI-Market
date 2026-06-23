@@ -153,6 +153,12 @@ def login():
     #render this template regardles of get/post
     return render_template('login.html', msg = msg)
 
+@app.route('/logout')
+def logout():
+    #just clear the username from the session and redirect back to the home page
+    session['user'] = None
+    return redirect('/')
+
 
 if __name__ == "__main__":
     app.run(debug=True)

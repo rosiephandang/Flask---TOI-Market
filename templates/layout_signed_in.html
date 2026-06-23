@@ -14,11 +14,11 @@
 
 <div class="header">
     <h1 class="headerlogo">
-        <a href="{{ url_for('home') }}">Tōī Market</a>
+        <a href="{{ url_for('home_signed_in') }}">Tōī Market</a>
     </h1>
 
     <ul>
-        <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
+        <li><a href="{{ url_for('home_signed_in') }}" class="active">Home</a></li>
 
         <!-- TEMP: using id=1 -->
         <li><a href="{{ url_for('about_us', user_id=1) }} " class="active1" >About Us</a></li>
