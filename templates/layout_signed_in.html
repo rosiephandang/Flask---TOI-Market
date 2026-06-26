@@ -21,15 +21,15 @@
         <li><a href="{{ url_for('home_signed_in') }}" class="active">Home</a></li>
 
         <!-- TEMP: using id=1 -->
-        <li><a href="{{ url_for('about_us', user_id=1) }} " class="active1" >About Us</a></li>
-        <li><a href="{{ url_for('notifications', user_id=1) }} " class="active2" >Notifications</a></li>
-        <li><a href="{{ url_for('meeting', location_id=1) }}" class="active3">Map</a></li>
+        <li><a href="{{ url_for('about_us_signed_in', user_id=1) }} " class="active1" >About Us</a></li>
+        <li><a href="{{ url_for('notifications_signed_in', user_id=1) }} " class="active2" >Notifications</a></li>
+        <li><a href="{{ url_for('meeting_signed_in', location_id=1) }}" class="active3">Map</a></li>
 
         <li class="dropdown">
             <a href="#">Account</a>
             <div class="dropdown-content">
-                <a href="{{ url_for('login', user_id=1) }}" class="active4">Logout</a>
-                <a href="{{ url_for('userprofile', user_id=1) }}" class="active6">Profile</a>
+                <a href="{{ url_for('logout', user_id=1) }}" class="active4">Logout</a>
+                <a href="{{ url_for('userprofile_signed_in', user_id=1) }}" class="active6">Profile</a>
 
             </div>
         </li>

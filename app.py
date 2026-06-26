@@ -83,15 +83,33 @@ def meeting(location_id):
     location = query_db("SELECT * FROM locations WHERE location_id = ?", (location_id,), one=True)
     return render_template("meeting.html", location=location)
 
-@app.route('/notifications/<int:user_id>')
-def notifications(user_id):
+@app.route('/news/<int:user_id>')
+def news(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("notifications.html", user=user)
+    return render_template("news.html", user=user)
 
 @app.route('/about_us/<int:user_id>')
 def about_us(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
     return render_template("about_us.html", user=user)
+
+#signed in pages
+@app.route('/about_us_signed_in/<int:user_id>')
+def about_us_signed_in(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("about_us_sign_in.html", user=user)
+
+@app.route('/meeting_signed_in/<int:user_id>')
+def meeting_signed_in(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("meeting_signed_in.html", user=user)
+
+@app.route('/about_us/<int:user_id>')
+def about_us(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("about_us.html", user=user)
+
+
 
 #signup & login pageeee
 @app.route('/signup', methods=['GET', 'POST'])
@@ -157,6 +175,7 @@ def login():
 def logout():
     #just clear the username from the session and redirect back to the home page
     session['user'] = None
+    flash('Logged out successfully')
     return redirect('/')
 
 
