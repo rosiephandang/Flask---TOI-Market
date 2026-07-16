@@ -110,10 +110,10 @@ def notifications_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
     return render_template("notifications_signed_in.html", user=user)
 
-@app.route('/product_signed_in/<int:user_id>')
-def product_signed_in(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("product_signed_in.html", user=user)
+@app.route('/product_signed_in/<int:product_id>')
+def product_signed_in(product_id):
+    product = query_db("""SELECT products.*,users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?;""", (product_id,), one=True)
+    return render_template("product_signed_in.html", product=product)
 
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):

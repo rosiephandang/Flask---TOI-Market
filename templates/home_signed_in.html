@@ -8,7 +8,7 @@
 
 <div class="threecolumn">
 {% for product in products %}
-    <a class="linkpiority" href="{{ url_for('product', product_id=product['product_id']) }}">
+    <a class="linkpiority" href="{{ url_for('product_signed_in', product_id=product['product_id']) }}">
         <div class="w3-card-4">
             <img class="productimage"
                 src="{{ product['image_url'] }}"
