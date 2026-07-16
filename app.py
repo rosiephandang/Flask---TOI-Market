@@ -97,19 +97,33 @@ def about_us(user_id):
 @app.route('/about_us_signed_in/<int:user_id>')
 def about_us_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("about_us_sign_in.html", user=user)
+    return render_template("about_us_signed_in.html", user=user)
 
-@app.route('/meeting_signed_in/<int:user_id>')
-def meeting_signed_in(user_id):
+@app.route('/meeting_signed_in/<int:location_id>')
+def meeting_signed_in(location_id):
+    location = query_db("SELECT * FROM locations WHERE location_id = ?",(location_id,),one=True)
+    return render_template("meeting_signed_in.html", location=location)
+
+
+@app.route('/notifications_signed_in/<int:user_id>')
+def notifications_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("meeting_signed_in.html", user=user)
+    return render_template("notifications_signed_in.html", user=user)
 
-@app.route('/about_us/<int:user_id>')
-def about_us(user_id):
+@app.route('/product_signed_in/<int:user_id>')
+def product_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("about_us.html", user=user)
+    return render_template("product_signed_in.html", user=user)
 
+@app.route('/seller_profile_signed_in/<int:user_id>')
+def seller_profile_signed_in(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("seller_profile_signed_in.html", user=user)
 
+@app.route('/userprofile_signed_in/<int:user_id>')
+def userprofile_signed_in(user_id):
+    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    return render_template("userprofile_signed_in.html", user=user)
 
 #signup & login pageeee
 @app.route('/signup', methods=['GET', 'POST'])
