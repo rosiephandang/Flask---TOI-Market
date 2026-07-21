@@ -104,6 +104,12 @@ def meeting_signed_in(location_id):
     location = query_db("SELECT * FROM locations WHERE location_id = ?",(location_id,),one=True)
     return render_template("meeting_signed_in.html", location=location)
 
+@app.route('/product_signed_in/<int:product_id>')
+def product_signed_in(product_id):
+    product = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?", (product_id,), one=True)
+    user_id = session.get('user_id')
+    liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
+    return render_template("product_signed_in.html",product=product, liked=liked)
 
 @app.route('/notifications_signed_in/<int:user_id>')
 def notifications_signed_in(user_id):
@@ -213,12 +219,6 @@ def like_product(product_id):
     db.commit()
     return redirect(url_for('product_signed_in', product_id=product_id))
 
-@app.route('/product_signed_in/<int:product_id>')
-def product_signed_in(product_id):
-    product = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?", (product_id,), one=True)
-    user_id = session.get('user_id')
-    liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
-    return render_template("product_signed_in.html",product=product, liked=liked)
 
 if __name__ == "__main__":
     app.run(debug=True)

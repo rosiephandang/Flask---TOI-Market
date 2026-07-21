@@ -2,21 +2,40 @@
 {% block body %}
     <!-- product viewing page-->
     <h1 class="test">Hello this is the product viewing page</h1>
+<div class="product-page">
+    <!-- left columnn -->
+    <div class="productimagesection">
+        <img class="product-main-image" src="{{ product['image_url'] }}" alt="Image of {{ product['product_name'] }}"></div>
 
-
-    <!-- 3 grid layout to show aircraft -->
-    <div class="threecolumn">
-        {% for row in results %}
-        <a class="linkpiority" href="{{ url_for('Home', id=row[0])}}">
-            <div class="w3-card-4">
-                <!-- the name then the image then the description -->
-                <h2>{{ row[1] }}</h2>
-                <img class="planeplane" src="{{ row[5] }}" alt="Image of {{ row[1] }}" style="width:100%">
-                <h3> {{row[3]}} - {{row[4]}}</h3>
-            </div>
-        </a>
-        {% endfor %}
-     </div> -->
+    <!--right columnn -->
+    <div class="productinfosection">
+        <h1 class="producttitle">{{ product['product_name'] }}</h1>
+        <p class="productseller" >Sold by:<a href="{{ url_for('seller_profile_signed_in', user_id=1) }} " class="active1" >{{ product['seller_username'] }}</p></a>
+        <h2 class="productprice">${{ product['price_suggested'] }}</h2>
+        <div class="productstatus">
+            <strong>Status:</strong>
+            {% if product['status'] == 'Available' %}
+                <span class="statusavailable">{{ product['status'] }}</span>
+            {% else %}
+                <span>{{ product['status'] }}</span>
+            {% endif %}
+        </div>
+        <div class="productdescription">
+            <h3>Description</h3>
+            <p>{{ product['description'] }}</p>
+        </div>
+        <div class="producthazards">
+            <h3>Health & Safety</h3>
+            {% if product['health_hazards'] %}
+                <p>{{ product['health_hazards'] }}</p>
+            {% else %}
+                <p>No known health hazards.</p>
+            {% endif %}
+        </div>
+        <h3>Likes: {{product['likes']}}</h3>
+        </form>
+    </div>
+</div>
 
     
 {% endblock %}
