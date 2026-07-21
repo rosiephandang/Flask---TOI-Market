@@ -217,3 +217,12 @@ WHERE email  NOT GLOB '*[0-9]*';
 
 SELECT product_name, description, price_suggested FROM products
 WHERE price_suggested >10;
+
+
+CREATE TABLE product_likes (
+    product_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    PRIMARY KEY (product_id, user_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);

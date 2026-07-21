@@ -110,8 +110,8 @@ def notifications_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
     return render_template("notifications_signed_in.html", user=user)
 
-@app.route('/product_signed_in/<int:product_id>')
-def product_signed_in(product_id):
+#@app.route('/product_signed_in/<int:product_id>')
+#def product_signed_in(product_id):
     product = query_db("""SELECT products.*,users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?;""", (product_id,), one=True)
     return render_template("product_signed_in.html", product=product)
 
@@ -150,8 +150,10 @@ def signup():
             else:
                 hashed_password = generate_password_hash(password)
                 db = get_db()
-                db.execute('INSERT INTO users (email, username, password) VALUES (?, ?, ?)',(email.lower(), username, hashed_password))
+                cursor = db.execute('INSERT INTO users (email, username, password) VALUES (?, ?, ?)',(email.lower(), username, hashed_password))
                 db.commit()
+                # log the user in immeadiately after signup by storing ID
+                session['user_id'] = cursor.lastrowid
                 flash('You have successfully created an account on TOI Market!')
                 return redirect(url_for('home_signed_in'))
     return render_template('signup.html', msg=msg)
@@ -175,7 +177,7 @@ def login():
                 if check_password_hash(user[3],password):
                     #we are logged in successfully
                     #Store the username in the session
-                    session['user'] = dict(user)
+                    session['user'] = user['user_id']
                     flash("Logged in successfully!")
                     return redirect(url_for('home_signed_in'))
                 else:
@@ -192,6 +194,31 @@ def logout():
     flash('Logged out successfully')
     return redirect('/')
 
+
+# like route
+@app.route('/like/<int:product_id>', methods=['POST'])
+def like_product(product_id):
+    user_id = session.get('user_id')
+    #if not user_id:
+        #flash("You must be logged in to like products.")
+        #return redirect(url_for('login'))
+    alr_liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
+    db = get_db()
+    if alr_liked:
+        db.execute("DELETE FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id))
+        db.execute("UPDATE products SET likes = likes - 1 WHERE product_id = ?", (product_id,))
+    else:
+        db.execute("INSERT INTO product_likes (product_id, user_id) VALUES (?, ?)", (product_id, user_id))
+        db.execute("UPDATE products SET likes = likes + 1 WHERE product_id = ?", (product_id,))
+    db.commit()
+    return redirect(url_for('product_signed_in', product_id=product_id))
+
+@app.route('/product_signed_in/<int:product_id>')
+def product_signed_in(product_id):
+    product = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?", (product_id,), one=True)
+    user_id = session.get('user_id')
+    liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
+    return render_template("product_signed_in.html",product=product, liked=liked)
 
 if __name__ == "__main__":
     app.run(debug=True)

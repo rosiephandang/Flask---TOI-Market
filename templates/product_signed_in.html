@@ -3,6 +3,19 @@
     <!-- sign-up page-->
     <h1 class="test">Hello this is the product signed in page</h1>
 
+    <h3>Likes: {{product['likes']}}</h3>
+    <form action="{{url_for('like_product', product_id=product['product_id'])}}" method="POST">
+    <!--some conditions to like/unlike only signed in tho-->
+        {% if liked %}
+            <button type="submit">
+                Unlike
+            </button>
+        {% else %}
+            <button type="submit">
+                Like
+            </button>
+        {% endif %}
+    </form>
 
     
 {% endblock %}
