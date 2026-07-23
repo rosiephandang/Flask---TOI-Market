@@ -180,10 +180,10 @@ def login():
             if user:
                 #we got a user!!
                 #check password matches-
-                if check_password_hash(user[3],password):
+                if check_password_hash(user['password'],password):
                     #we are logged in successfully
                     #Store the username in the session
-                    session['user'] = user['user_id']
+                    session['user_id'] = user['user_id']
                     flash("Logged in successfully!")
                     return redirect(url_for('home_signed_in'))
                 else:
@@ -197,6 +197,7 @@ def login():
 def logout():
     #just clear the username from the session and redirect back to the home page
     session['user'] = None
+    #session.pop('user_id', None)
     flash('Logged out successfully')
     return redirect('/')
 
@@ -213,9 +214,12 @@ def like_product(product_id):
     if alr_liked:
         db.execute("DELETE FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id))
         db.execute("UPDATE products SET likes = likes - 1 WHERE product_id = ?", (product_id,))
+        flash("You've unliked this product!")
+
     else:
         db.execute("INSERT INTO product_likes (product_id, user_id) VALUES (?, ?)", (product_id, user_id))
         db.execute("UPDATE products SET likes = likes + 1 WHERE product_id = ?", (product_id,))
+        flash("You've liked this product!")
     db.commit()
     return redirect(url_for('product_signed_in', product_id=product_id))
 
