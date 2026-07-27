@@ -124,3 +124,186 @@ li.dropdown {
 .linkpiority{
   font-size: 10px;
 }
+
+
+/* product page view 2 column */
+.two-column{
+    background-color: #f2f2f2;
+    max-width: 1350px;
+    margin: 40px auto;
+    margin-bottom: 5px;
+    padding: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr ;
+    gap: 60px;
+
+}
+
+.productmainimage{
+    width: 100%;
+    height:685px;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.productimagesection{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.productinfosection {
+    padding: 10px 20px;
+}
+
+.producttitle {
+    font-size: 42px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.productseller {
+    font-size: 15px;
+    margin-bottom: 30px;
+}
+
+.productprice {
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.productstatus {
+    padding: 12px 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.productdate{
+    padding: 12px 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.statusavailable {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+
+.productdescription {
+    margin-top: 30px;
+}
+
+.productdescription h3, .producthazards h3, .offersection h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.productdescription p {
+    line-height: 1.6;
+}
+
+.producthazards {
+    margin-top: 5px;
+    padding: 15px;
+}
+
+.productlikes {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.likebutton {
+    padding: 10px 25px;
+    background-color: white;
+    border: 1px solid black;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.likebutton:hover {
+    background-color: black;
+    color: white;
+}
+
+.likebutton.liked {
+    background-color: black;
+    color: white;
+}
+
+.offersection {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid #ddd;
+}
+
+.offersection p {
+    line-height: 1.5;
+}
+
+.offerinput {
+    display: flex;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #999;
+}
+
+
+.offerinput span {
+    padding: 12px;
+}
+
+
+.offerinput input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    outline: none;
+}
+
+
+.offerbutton {
+    width: 100%;
+    padding: 15px;
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+
+.offerbutton:hover {
+    opacity: 0.75;
+}
+
+
+.productmeta {
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    font-size: 13px;
+}
+
+@media (max-width: 800px) {
+    .productpage {
+        grid-template-columns: 1fr;
+        margin: 10px;
+        padding: 15px;
+        gap: 30px;
+    }
+
+    .productmainimage {
+        height: 450px;
+    }
+
+    .producttitle {
+        font-size: 32px;
+    }
+}
