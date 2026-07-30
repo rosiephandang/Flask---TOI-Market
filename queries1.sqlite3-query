@@ -226,3 +226,14 @@ CREATE TABLE product_likes (
     FOREIGN KEY (product_id) REFERENCES products(product_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+
+ALTER TABLE users ADD COLUMN description VARCHAR;
+
+ALTER TABLE users ADD COLUMN date_joined DATE;
+
+ALTER TABLE users ADD COLUMN products_liked INTEGER;
+
+ALTER TABLE users ADD COLUMN products_sold INTEGER;
+
+
+

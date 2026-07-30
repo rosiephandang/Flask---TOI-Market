@@ -1,7 +1,8 @@
 import sqlite3
 from flask import Flask, g, render_template, request, flash, redirect, url_for, session
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash 
 import re
+from datetime import date
 
 DATABASE = 'database.db'
 
@@ -51,7 +52,13 @@ def home_signed_in():
     INNER JOIN users
     ON products.seller_key = users.user_id;""")   
     print(dict(products[0]))
-    return render_template("home_signed_in.html", products=products)
+    users = query_db("""
+    SELECT users.*, users.username AS seller_username
+    FROM users
+    INNER JOIN products
+    ON users.user_id = products.seller_key;""")   
+    print(dict(users[0]))
+    return render_template("home_signed_in.html", products=products, users=users)
 
 @app.route('/product/<int:product_id>')
 def product(product_id):
@@ -156,7 +163,8 @@ def signup():
             else:
                 hashed_password = generate_password_hash(password)
                 db = get_db()
-                cursor = db.execute('INSERT INTO users (email, username, password) VALUES (?, ?, ?)',(email.lower(), username, hashed_password))
+                today = date.today().isoformat()
+                cursor = db.execute('INSERT INTO users (email, username, password, date_joined) VALUES (?, ?, ?, ?)',(email.lower(), username, hashed_password, today))
                 db.commit()
                 # log the user in immeadiately after signup by storing ID
                 session['user_id'] = cursor.lastrowid
@@ -192,6 +200,8 @@ def login():
                 msg = "Email does not exist."
     #render this template regardles of get/post
     return render_template('login.html', msg = msg)
+
+
 
 @app.route('/logout')
 def logout():

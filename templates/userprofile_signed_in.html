@@ -2,7 +2,59 @@
 {% block body %}
     <!-- user profile editing page-->
     <h1 class="test">Hello this is the user profile editing signed in page</h1>
-    
+    <!--Username
+        
+    Email:
+    student@burnside.school.nz
+
+    Member since:
+    30 July 2026
+
+    Description:
+    "I enjoy making 3D prints."
+
+    Products for sale: 5
+
+    Products liked: 17-->
+<div class="userprofilesignedin">
+    <h1 class="username_show">{{ user['username'] }}</h1>
+    <h3 class="email_show">{{ user['email'] }}</h3>
+        <div class="userdescription">
+            <h5>Description</h5>
+            {% if user['description'] != 'NULL' %}
+                <span class="userdescription">no user description provided...</span>
+            {% else %}
+                <span>{{ user['description'] }}</span>
+            {% endif %}
+            <form action="#" method="POST">
+                <div class="changinguserdescription">
+                    <span></span><input type="text" id="user_description" name=""  placeholder="Edit user description" required>
+                </div>
+                <button type="submit" class="user_description">Edit</button>
+            </form>
+        </div>
+        <br><p class="products_liked">Products liked:{{ user['products_liked'] }}</p><br>
+        <p class="products_sold">Products sold: {{ user['products_sold'] }}</p><br>
+        <div class="updating_username">
+            <h5>Change current username</h5>
+            <form action="#" method="POST">
+                <div class="usernamechanging">
+                    <span></span><input type="text" id="username" name="username_change"  placeholder="New username" required>
+                </div>
+                <button type="submit" class="username_change">Update</button>
+            </form>
+        </div>
+    </div>
+    <div class="userdate">
+            <p>Joined: {{ user['date_joined'] }}</p>
+    </div>
+    <div class="products_liked_list">
+
+
+    </div>
+
+
+</div>
 
     
 {% endblock %}
