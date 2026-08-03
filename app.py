@@ -73,12 +73,6 @@ WHERE products.product_id = ?;""", (product_id,), one=True)
     return render_template("product.html", product=product)
 
 
-@app.route('/userprofile/<int:user_id>')
-def userprofile(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("userprofile.html", user=user)
-
-
 @app.route('/sellerprofile/<int:user_id>')
 def sellerprofile(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
@@ -123,19 +117,22 @@ def notifications_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
     return render_template("notifications_signed_in.html", user=user)
 
-#@app.route('/product_signed_in/<int:product_id>')
-#def product_signed_in(product_id):
-    product = query_db("""SELECT products.*,users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?;""", (product_id,), one=True)
-    return render_template("product_signed_in.html", product=product)
-
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
     return render_template("seller_profile_signed_in.html", user=user)
 
-@app.route('/userprofile_signed_in/<int:user_id>')
+@app.route('/userprofile_signed_in/<int:user_id>', methods=["GET","POST"])
 def userprofile_signed_in(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    db = get_db()
+    user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,),one=True)
+    if request.method == "POST":
+        username = request.form.get('username') 
+        description = request.form.get('description')
+        db.execute("UPDATE users SET username = ?, description = ? WHERE user_id = ?", (username, description, user_id))
+        db.commit()
+        flash("Profile updated!")
+        return redirect(url_for("userprofile_signed_in",user=user))
     return render_template("userprofile_signed_in.html", user=user)
 
 #signup & login pageeee

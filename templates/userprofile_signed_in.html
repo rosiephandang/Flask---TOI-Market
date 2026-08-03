@@ -25,23 +25,22 @@
                 <span class="userdescription">no user description provided...</span>
             {% else %}
                 <span>{{ user['description'] }}</span>
+                <textarea name="description">{{ user['description'] }}</textarea>
             {% endif %}
-            <form action="#" method="POST">
-                <div class="changinguserdescription">
-                    <span></span><input type="text" id="user_description" name=""  placeholder="Edit user description" required>
-                </div>
-                <button type="submit" class="user_description">Edit</button>
-            </form>
         </div>
         <br><p class="products_liked">Products liked:{{ user['products_liked'] }}</p><br>
         <p class="products_sold">Products sold: {{ user['products_sold'] }}</p><br>
         <div class="updating_username">
-            <h5>Change current username</h5>
             <form action="#" method="POST">
+                <h5>Change current username</h5>
                 <div class="usernamechanging">
                     <span></span><input type="text" id="username" name="username_change"  placeholder="New username" required>
                 </div>
-                <button type="submit" class="username_change">Update</button>
+                <h5>Change current user description</h5>
+                <div class="changinguserdescription">
+                    <span></span><input type="text" id="user_description" name=""  placeholder="Edit user description" required>
+                </div>
+                <button type="submit" class="profile_change">Update</button>
             </form>
         </div>
     </div>
