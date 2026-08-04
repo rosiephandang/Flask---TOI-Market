@@ -21,24 +21,23 @@
     <h3 class="email_show">{{ user['email'] }}</h3>
         <div class="userdescription">
             <h5>Description</h5>
-            {% if user['description'] != 'NULL' %}
-                <span class="userdescription">no user description provided...</span>
-            {% else %}
+            {% if user['description'] %}
                 <span>{{ user['description'] }}</span>
-                <textarea name="description">{{ user['description'] }}</textarea>
+            {% else %}
+                <span>No user description provided...</span>
             {% endif %}
         </div>
         <br><p class="products_liked">Products liked:{{ user['products_liked'] }}</p><br>
         <p class="products_sold">Products sold: {{ user['products_sold'] }}</p><br>
         <div class="updating_username">
-            <form action="#" method="POST">
+            <form method="POST">
                 <h5>Change current username</h5>
                 <div class="usernamechanging">
-                    <span></span><input type="text" id="username" name="username_change"  placeholder="New username" required>
+                    <span></span><input type="text" name="username"  placeholder="New username" required>
                 </div>
                 <h5>Change current user description</h5>
                 <div class="changinguserdescription">
-                    <span></span><input type="text" id="user_description" name=""  placeholder="Edit user description" required>
+                    <span></span><input type="text" name="description"  placeholder="Edit user description" required>
                 </div>
                 <button type="submit" class="profile_change">Update</button>
             </form>

@@ -127,12 +127,12 @@ def userprofile_signed_in(user_id):
     db = get_db()
     user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,),one=True)
     if request.method == "POST":
-        username = request.form.get('username') 
-        description = request.form.get('description')
-        db.execute("UPDATE users SET username = ?, description = ? WHERE user_id = ?", (username, description, user_id))
+        new_username = request.form.get('username') 
+        new_description = request.form.get('description')
+        db.execute("UPDATE users SET username = ?, description = ? WHERE user_id = ?", (new_username, new_description, user_id))
         db.commit()
         flash("Profile updated!")
-        return redirect(url_for("userprofile_signed_in",user=user))
+        return redirect(url_for("userprofile_signed_in", user_id=user_id))
     return render_template("userprofile_signed_in.html", user=user)
 
 #signup & login pageeee
