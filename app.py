@@ -36,29 +36,33 @@ def query_db(query, args=(), one=False):
 
 @app.route('/')
 def home():
-    products = query_db("""
-    SELECT products.*, users.username AS seller_username
-    FROM products
-    INNER JOIN users
-    ON products.seller_key = users.user_id;""")   
+    search = request.args.get('search', '').strip()
+    if search:
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ? ORDER BY products.date_posted DESC", (
+            '%' + search + '%',
+            '%' + search + '%',
+            '%' + search + '%'
+        ))   
+    else:
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id ORDER BY products.date_posted DESC")
     print(dict(products[0]))
-    return render_template("home.html", products=products)
+    return render_template("home.html", products=products, search=search)
 
 @app.route('/signed_in')
 def home_signed_in():
-    products = query_db("""
-    SELECT products.*, users.username AS seller_username
-    FROM products
-    INNER JOIN users
-    ON products.seller_key = users.user_id;""")   
-    print(dict(products[0]))
-    users = query_db("""
-    SELECT users.*, users.username AS seller_username
-    FROM users
-    INNER JOIN products
-    ON users.user_id = products.seller_key;""")   
+    search = request.args.get('search', '').strip()
+    if search:
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ? ORDER BY products.date_posted DESC", (
+            '%' + search + '%',
+            '%' + search + '%',
+            '%' + search + '%'
+        ))   
+    else:
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id ORDER BY products.date_posted DESC")
+        users = query_db("SELECT users.*, users.username AS seller_username FROM users INNER JOIN products ON users.user_id = products.seller_key")  
+    print(dict(products[0])) 
     print(dict(users[0]))
-    return render_template("home_signed_in.html", products=products, users=users)
+    return render_template("home_signed_in.html", products=products, users=users, search=search)
 
 @app.route('/product/<int:product_id>')
 def product(product_id):

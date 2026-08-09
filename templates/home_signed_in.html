@@ -2,9 +2,12 @@
 
 {% block body %}
 
-<h1>Hello this is the home page for signed in stuff</h1>
-
-<h2 class="search bar">add search bar here</h2>
+<div class="search bar">
+    <form action="{{ url_for('home') }}" method="GET">
+        <input type="text" name="search" placeholder="Search products..." value="{{ search }}">
+        <button type="submit">Search</button>
+    </form>
+</div>
 
 <div class="threecolumn">
 {% for product in products %}
