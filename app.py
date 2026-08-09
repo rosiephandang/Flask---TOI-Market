@@ -133,7 +133,9 @@ def userprofile_signed_in(user_id):
         db.commit()
         flash("Profile updated!")
         return redirect(url_for("userprofile_signed_in", user_id=user_id))
-    return render_template("userprofile_signed_in.html", user=user)
+    # urm products this user has liked
+    liked_products = query_db("SELECT products.*, users.username AS seller_username, product_likes.date_liked FROM product_likes INNER JOIN products ON product_likes.product_id = products.product_id INNER JOIN users ON products.seller_key = users.user_id  WHERE product_likes.user_id = ? ORDER BY product_likes.date_liked DESC", (user_id,))
+    return render_template("userprofile_signed_in.html", user=user, liked_products=liked_products)
 
 #signup & login pageeee
 @app.route('/signup', methods=['GET', 'POST'])
@@ -162,6 +164,7 @@ def signup():
                 db = get_db()
                 today = date.today().isoformat()
                 cursor = db.execute('INSERT INTO users (email, username, password, date_joined) VALUES (?, ?, ?, ?)',(email.lower(), username, hashed_password, today))
+                # cursor = db.execute("UPDATE user SET score = 0 WHERE id = ?", (user_id,))
                 db.commit()
                 # log the user in immeadiately after signup by storing ID
                 session['user_id'] = cursor.lastrowid
@@ -222,9 +225,9 @@ def like_product(product_id):
         db.execute("DELETE FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id))
         db.execute("UPDATE products SET likes = likes - 1 WHERE product_id = ?", (product_id,))
         flash("You've unliked this product!")
-
     else:
-        db.execute("INSERT INTO product_likes (product_id, user_id) VALUES (?, ?)", (product_id, user_id))
+        today = date.today().isoformat()
+        db.execute("INSERT INTO product_likes (product_id, user_id, date_liked) VALUES (?, ?, ?)", (product_id, user_id, today))
         db.execute("UPDATE products SET likes = likes + 1 WHERE product_id = ?", (product_id,))
         flash("You've liked this product!")
     db.commit()

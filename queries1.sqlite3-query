@@ -236,4 +236,5 @@ ALTER TABLE users ADD COLUMN products_liked INTEGER;
 ALTER TABLE users ADD COLUMN products_sold INTEGER;
 
 
-
+ALTER TABLE product_likes
+ADD COLUMN date_liked TEXT;

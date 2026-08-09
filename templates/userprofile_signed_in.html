@@ -1,21 +1,6 @@
 {% extends "layout_signed_in.html" %}
 {% block body %}
     <!-- user profile editing page-->
-    <h1 class="test">Hello this is the user profile editing signed in page</h1>
-    <!--Username
-        
-    Email:
-    student@burnside.school.nz
-
-    Member since:
-    30 July 2026
-
-    Description:
-    "I enjoy making 3D prints."
-
-    Products for sale: 5
-
-    Products liked: 17-->
 <div class="userprofilesignedin">
     <h1 class="username_show">{{ user['username'] }}</h1>
     <h3 class="email_show">{{ user['email'] }}</h3>
@@ -42,16 +27,29 @@
                 <button type="submit" class="profile_change">Update</button>
             </form>
         </div>
-    </div>
     <div class="userdate">
             <p>Joined: {{ user['date_joined'] }}</p>
     </div>
     <div class="products_liked_list">
-
-
+        <div class="products_liked_list">
+        <h2>Products You've Liked</h2>
+        <div class="liked_products_row">
+            {% for product in liked_products %}
+                <a href="{{ url_for('product_signed_in', product_id=product['product_id']) }}" class="liked-product">
+                    <img src="{{ product['image_url'] }}" alt="{{ product['product_name'] }}">
+                    <div>
+                        <h3>{{ product['product_name'] }}</h3>
+                        <p>Seller: {{ product['seller_username'] }}</p>
+                        <p>${{ product['price_suggested'] }}</p>
+                        <p>Likes: {{ product['likes'] }}</p>
+                        <p>Liked: {{ product['date_liked'] }}</p>
+                    </div>
+                </a>
+            {% else %}
+                <p>You haven't liked any products yet.</p>
+            {% endfor %}
+        </div>
     </div>
-
-
 </div>
 
     
