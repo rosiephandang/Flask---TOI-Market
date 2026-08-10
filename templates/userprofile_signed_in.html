@@ -1,6 +1,7 @@
 {% extends "layout_signed_in.html" %}
 {% block body %}
     <!-- user profile editing page-->
+<a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
 <div class="userprofilesignedin">
     <h1 class="username_show">{{ user['username'] }}</h1>
     <h3 class="email_show">{{ user['email'] }}</h3>
