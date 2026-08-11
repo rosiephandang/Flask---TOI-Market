@@ -9,7 +9,7 @@
     <!--right columnn -->
     <div class="productinfosection">
         <h1 class="producttitle">{{ product['product_name'] }}</h1>
-        <p class="productseller" >Sold by:<a href="{{ url_for('seller_profile_signed_in', user_id=1) }} " class="active1" >{{ product['seller_username'] }}</p></a>
+        <p class="productseller" >Sold by:<a href="{{ url_for('seller_profile_signed_in', user_id=product['seller_key']) }} " class="active1" >{{ product['seller_username'] }}</a></p> 
         <h2 class="productprice">${{ product['price_suggested'] }}</h2>
         <div class="productstatus">
             <strong>Status:</strong>

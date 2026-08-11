@@ -409,3 +409,35 @@ li.dropdown {
 .addproduct button:hover {
     background-color: #108b96;
 }
+
+.seller-products {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    padding: 10px 5px 20px;
+}
+
+.seller-product {
+    flex: 0 0 220px;
+    width: 220px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.seller-product img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.seller-product h3 {
+    margin: 10px 0 5px;
+}
+
+.seller-product p {
+    margin: 5px 0;
+}

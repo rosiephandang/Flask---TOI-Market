@@ -104,7 +104,7 @@ def meeting_signed_in(location_id):
 
 @app.route('/product_signed_in/<int:product_id>')
 def product_signed_in(product_id):
-    product = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?", (product_id,), one=True)
+    product = query_db("SELECT products.*, users.user_id AS seller_key, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?", (product_id,), one=True)
     user_id = session.get('user_id')
     liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
     return render_template("product_signed_in.html",product=product, liked=liked)
@@ -117,7 +117,8 @@ def notifications_signed_in(user_id):
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("seller_profile_signed_in.html", user=user)
+    products = query_db("SELECT * FROM products WHERE seller_key = ? ORDER BY date_posted DESC", (user_id,))
+    return render_template("seller_profile_signed_in.html", user=user, products=products)
 
 @app.route('/userprofile_signed_in/<int:user_id>', methods=["GET","POST"])
 def userprofile_signed_in(user_id):

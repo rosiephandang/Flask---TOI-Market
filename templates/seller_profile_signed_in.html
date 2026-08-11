@@ -1,9 +1,25 @@
 {% extends "layout_signed_in.html" %}
 {% block body %}
-    <!-- sign-up page-->
     <a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
-    <h1 class="test">Hello this is the seller profile signed in page</h1>
-
-
-    
+<div class="seller-profile">
+    <h1>{{ user['username'] }}</h1>
+    {% if user['description'] %}
+        <p>{{ user['description'] }}</p>
+    {% else %}
+        <p>No description provided.</p>
+    {% endif %}
+    <h2>Products for Sale</h2>
+    <div class="seller-products">
+        {% for product in products %}
+            <a href="{{ url_for('product_signed_in', product_id=product['product_id']) }}"
+               class="seller-product">
+                <img src="{{ product['image_url'] }}" alt="{{ product['product_name'] }}">
+                <h3>{{ product['product_name'] }}</h3>
+                <p>${{ product['price_suggested'] }}</p>
+            </a>
+        {% else %}
+            <p>This user has no products for sale.</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
