@@ -348,3 +348,64 @@ li.dropdown {
 .backhome:hover {
     background-color: #108b96;
 }
+
+.add_product_button {
+    margin: 25px 0;
+}
+
+.add_product_button a {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #51c4d3;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.add_product_button a:hover {
+    background-color: #108b96;
+}
+
+.addproduct {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+}
+
+.addproduct h1 {
+    margin-bottom: 30px;
+}
+
+.addproduct label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.addproduct input,
+.addproduct textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #999;
+    box-sizing: border-box;
+}
+
+.addproduct textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+.addproduct button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 15px;
+    background-color: #51c4d3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.addproduct button:hover {
+    background-color: #108b96;
+}

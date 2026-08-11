@@ -1,0 +1,24 @@
+{% extends "layout_signed_in.html" %}
+
+{% block body %}
+
+<div class="addproduct">
+    <h1>Add a Product</h1>
+    <form action="{{ url_for('add_product') }}" method="POST" enctype="multipart/form-data">
+        <label for="product_name">Product Name</label>
+        <input type="text" id="product_name" name="product_name" maxlength="20" required>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" maxlength="100" required></textarea>
+        <label for="price">Price</label>
+        <input type="number" id="price" name="price" min="0" required>
+        <label for="health_hazards">Health Hazards</label>
+        <input type="text" id="health_hazards" name="health_hazards" placeholder="None if there are no hazards">
+        <label for="image">Product Image</label>
+        <input type="file" id="image" name="image" accept="image/*" required>
+        <button type="submit">
+            Add Product
+        </button>
+    </form>
+</div>
+
+{% endblock %}

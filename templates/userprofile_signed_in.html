@@ -13,6 +13,10 @@
                 <span>No user description provided...</span>
             {% endif %}
         </div>
+        <div class="add_product_button">
+            <a href="{{ url_for('add_product') }}">+ Add a Product
+            </a>
+        </div>
         <br><p class="products_liked">Products liked:{{ user['products_liked'] }}</p><br>
         <p class="products_sold">Products sold: {{ user['products_sold'] }}</p><br>
         <div class="updating_username">

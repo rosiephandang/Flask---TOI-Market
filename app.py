@@ -66,14 +66,7 @@ def home_signed_in():
 
 @app.route('/product/<int:product_id>')
 def product(product_id):
-    product = query_db("""
-    SELECT products.*,
-users.username
-AS seller_username
-FROM products
-INNER JOIN users
-ON products.seller_key = users.user_id
-WHERE products.product_id = ?;""", (product_id,), one=True)
+    product = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?;", (product_id,), one=True)
     return render_template("product.html", product=product)
 
 
@@ -236,6 +229,32 @@ def like_product(product_id):
         flash("You've liked this product!")
     db.commit()
     return redirect(url_for('product_signed_in', product_id=product_id))
+
+# for sellers/users to add products
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    if request.method == 'POST':
+        product_name = request.form['product_name']
+        description = request.form['description']
+        price = request.form['price']
+        hazards = request.form['health_hazards']
+        image = request.files['image']
+        if not product_name or not description or not price or not image:
+            flash("Please fill out all required fields.")
+            return redirect(url_for('add_product'))
+        # savee image
+        filename = image.filename
+        image.save('static/uploads/' + filename)
+        # automatically filled information
+        user_id = session['user_id']
+        today = date.today().isoformat()
+        db = get_db()
+        db.execute("INSERT INTO products (product_name, description, price_suggested, seller_key, image_url, date_posted, status, health_hazards, likes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (product_name, description, price, user_id, '/static/uploads/' + filename, today,'available', hazards, 0))
+        db.commit()
+        flash("Your product has been added!")
+        return redirect(url_for('userprofile_signed_in', user_id=user_id))
+    return render_template('add_product_signed_in.html')
+
 
 
 if __name__ == "__main__":
