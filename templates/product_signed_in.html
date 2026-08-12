@@ -39,7 +39,7 @@
         <div class="offersection">
             <h3>Interested in buying?</h3>
             <p>Send an offer to the seller. The seller can choose the offer they like best. </p>
-            <form action="#" method="POST">
+            <form action="{{ url_for('request_product', product_id=product['product_id']) }}" method="POST">
                 <div class="offerinput">
                     <span>$</span><input type="number" id="offer" name="offer" min="0" step="0.01" placeholder="Enter your offer" required>
                 </div>

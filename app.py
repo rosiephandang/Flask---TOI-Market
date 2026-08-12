@@ -257,6 +257,30 @@ def add_product():
     return render_template('add_product_signed_in.html')
 
 
+@app.route('/request_product/<int:product_id>', methods=['POST'])
+def request_product(product_id):
+    buyer_id = session.get('user_id')
+    product = query_db("SELECT * FROM products WHERE product_id = ?", (product_id,), one=True)
+    # if its gone/deleted by admin
+    if not product:
+        flash("Product not found.")
+        return redirect(url_for('home_signed_in'))
+    seller_id = product['seller_key']
+    # no allow sellers to request their own products
+    if buyer_id == seller_id:
+        flash("You cannot request to buy your own product.")
+        return redirect(url_for('product_signed_in', product_id=product_id))
+    # check if they already requested itt
+    existing = query_db("SELECT * FROM buy_requests WHERE product_id = ? AND buyer_id = ? AND status = 'pending'", (product_id, buyer_id), one=True)
+    if existing:
+        flash("You have already requested this product.")
+        return redirect(url_for('product_signed_in',product_id=product_id))
+    db = get_db()
+    db.execute("INSERT INTO buy_requests (product_id, buyer_id, seller_id, date_requested) VALUES (?, ?, ?, ?)", (product_id, buyer_id, seller_id, date.today().isoformat()))
+    db.commit()
+    flash("Your request has been sent to the seller.")
+    return redirect(url_for('product_signed_in', product_id=product_id))
+
 
 if __name__ == "__main__":
     app.run(debug=True)

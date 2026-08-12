@@ -238,3 +238,22 @@ ALTER TABLE users ADD COLUMN products_sold INTEGER;
 
 ALTER TABLE product_likes
 ADD COLUMN date_liked TEXT;
+
+
+SELECT sql
+FROM sqlite_master
+WHERE type = 'table'
+ORDER BY name;
+
+CREATE TABLE buy_requests (
+    request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    buyer_id INTEGER NOT NULL,
+    seller_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'pending',
+    date_requested DATE NOT NULL,
+    meeting_location TEXT,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (buyer_id) REFERENCES users(user_id),
+    FOREIGN KEY (seller_id) REFERENCES users(user_id)
+);
