@@ -111,8 +111,8 @@ def product_signed_in(product_id):
 
 @app.route('/notifications_signed_in/<int:user_id>')
 def notifications_signed_in(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("notifications_signed_in.html", user=user)
+    notifications = query_db("SELECT alerts.alert_id, alerts.message, alerts.date_created, alerts.status AS notification_status, offers.offer_id, offers.offer_price, offers.status AS offer_status, products.product_id, products.product_name, products.image_url, users.username AS buyer_username FROM alerts INNER JOIN offers ON alerts.offer_key = offers.offer_id INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users ON offers.byer_key = users.user_id WHERE alerts.user_key = ? ORDER BY alerts.date_created DESC", (user_id,))
+    return render_template("notifications_signed_in.html",notifications=notifications)
 
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):
@@ -271,15 +271,47 @@ def request_product(product_id):
         flash("You cannot request to buy your own product.")
         return redirect(url_for('product_signed_in', product_id=product_id))
     # check if they already requested itt
-    existing = query_db("SELECT * FROM buy_requests WHERE product_id = ? AND buyer_id = ? AND status = 'pending'", (product_id, buyer_id), one=True)
+    existing = query_db("SELECT * FROM offers WHERE product_key = ? AND byer_key = ? AND status = 'pending'", (product_id, buyer_id), one=True)
     if existing:
         flash("You have already requested this product.")
         return redirect(url_for('product_signed_in',product_id=product_id))
+    offer_price = request.form['offer']
+    message = request.form.get('message', '')
     db = get_db()
-    db.execute("INSERT INTO buy_requests (product_id, buyer_id, seller_id, date_requested) VALUES (?, ?, ?, ?)", (product_id, buyer_id, seller_id, date.today().isoformat()))
+    cursor = db.execute("INSERT INTO offers (product_key, seller_key, offer_price, message, date_sent, status, byer_key) VALUES (?, ?, ?, ?, ?, ?, ?)", (product_id, seller_id,offer_price, message, date.today().isoformat(),'pending', buyer_id))
+    offer_id = cursor.lastrowid
+    db.execute("INSERT INTO alerts (user_key, offer_key, alert_type, message, date_created, status) VALUES (?, ?, ?, ?, ?, ?)", (product['seller_key'], offer_id, 1, 'Someone has requested to buy your product: ' + product['product_name'], date.today().isoformat(), 'unread'))
     db.commit()
     flash("Your request has been sent to the seller.")
     return redirect(url_for('product_signed_in', product_id=product_id))
+
+@app.route('/requests')
+def requests_page():
+    seller_id = session.get('user_id')
+    requests = query_db("SELECT offers.offer_id, offers.offer_price, offers.message, offers.date_sent, offers.status, products.product_id, products.product_name, products.image_url, users.username AS buyer_username FROM offers INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users ON offers.byer_key = users.user_id WHERE offers.seller_key = ? ORDER BY offers.date_sent DESC", (seller_id,))
+    locations = query_db("SELECT * FROM locations ORDER BY location_name")
+    return render_template("requests_signed_in.html", requests=requests, locations=locations)
+
+@app.route('/approve_request/<int:offer_id>', methods=['POST'])
+def approve_request(offer_id):
+    seller_id = session.get('user_id')
+    location_id = request.form['meeting_location']
+    db = get_db()
+    # find the offer make sure it belongs to this seller
+    offer = query_db("SELECT * FROM offers WHERE offer_id = ? AND seller_key = ?", (offer_id, seller_id), one=True)
+    if not offer:
+        flash("Offer not found.")
+        return redirect(url_for('requests_page'))
+    # approve the offer
+    db.execute("UPDATE offers SET status = 'approved' WHERE offer_id = ?", (offer_id,))
+    # meetup
+    db.execute("INSERT INTO meetups (offer_key,location_key, meetup_time, status)VALUES (?, ?, ?, ?)", (offer_id, location_id, None, 'pending'))
+    # ntify buyer
+    db.execute("INSERT INTO alerts (user_key, offer_key, alert_type, message, date_created,status)VALUES (?, ?, ?, ?, ?, ?)", (offer['byer_key'], offer_id, 2, 'Your offer has been approved!', date.today().isoformat(), 'unread'))
+    db.commit()
+    flash("Offer approved!")
+    return redirect(url_for('requests_page'))
+
 
 
 if __name__ == "__main__":

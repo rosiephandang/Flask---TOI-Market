@@ -1,8 +1,28 @@
 {% extends "layout_signed_in.html" %}
 {% block body %}
-    <!-- sign-up page-->
-    <h1 class="test">Hello this is the notif signed in page</h1>
 
+<div class="notifications-page">
+    <h1>Notifications</h1>
+    {% for notification in notifications %}
+        <div class="notification">
+            <h3>{{ notification['message'] }}</h3>
+            <p>Product: {{ notification['product_name'] }}</p>
+            <p>Requested by: {{ notification['buyer_username'] }}</p>
+            <p>Offer: ${{ notification['offer_price'] }}</p>
+            <p>Date: {{ notification['date_created'] }}</p>
+            <p>Status: {{ notification['offer_status'] }}</p>
+            {% if notification['offer_status'] == 'pending' %}
+                <a href="{{ url_for('requests_page') }}" class="notification-button">
+                    View Request
+                </a>
+            {% elif notification['offer_status'] == 'approved' %}
+                <p>This request has been approved.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>You have no notifications.</p>
+    {% endfor %}
+</div>
 
     
 {% endblock %}
