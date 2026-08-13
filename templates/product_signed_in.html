@@ -15,6 +15,8 @@
             <strong>Status:</strong>
             {% if product['status'] == 'available' %}
                 <span class="statusavailable">{{ product['status'] }}</span>
+            {% elif product['status'] == 'pending' %}
+                <span class="statuspending">Awaiting Admin Approval</span>
             {% elif product['status'] == 'sold' %}
                 <span class="statussold">Sold</span>
             {% elif product['status'] == 'deleted' %}
@@ -38,6 +40,13 @@
                 </button>
             {% endif %}
         </form>
+        <div class="reportsection">
+            <h3>Report this product</h3>
+            <form action="{{ url_for('report_product', product_id=product['product_id']) }}"method="POST">
+                <textarea name="reason" placeholder="Why are you reporting this product?" required></textarea>
+                <button type="submit" class="report-button">Report Product</button>
+            </form>
+        </div>
         <div class="offersection">
             {% if product['status'] == 'available' %}
                 <h3>Interested in buying?</h3>
@@ -51,6 +60,11 @@
                     </div>
                     <button type="submit" class="offerbutton">Send Offer</button>
                 </form>
+            {% elif product['status'] == 'pending' %}
+                <div class="pending-message">
+                    <h3>This product is awaiting approval.</h3>
+                    <p>This product cannot receive offers until it has been approved by an administrator.</p>
+                </div>
             {% elif product['status'] == 'sold' %}
                 <div class="sold-message">
                     <h3>This product has been sold.</h3>

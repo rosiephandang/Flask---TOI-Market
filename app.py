@@ -38,28 +38,38 @@ def query_db(query, args=(), one=False):
 def home():
     search = request.args.get('search', '').strip()
     if search:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ? AND products.status != 'deleted' ORDER BY products.date_posted DESC", (
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') ORDER BY products.date_posted DESC", (
             '%' + search + '%',
             '%' + search + '%',
             '%' + search + '%'
         ))   
     else:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status != 'deleted'ORDER BY products.date_posted DESC")
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') ORDER BY products.date_posted DESC")
     return render_template("home.html", products=products, search=search)
 
 @app.route('/signed_in')
 def home_signed_in():
     search = request.args.get('search', '').strip()
     if search:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ? AND products.status != 'deleted' ORDER BY products.date_posted DESC", (
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') ORDER BY products.date_posted DESC", (
             '%' + search + '%',
             '%' + search + '%',
             '%' + search + '%'
         ))   
     else:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status != 'deleted' ORDER BY products.date_posted DESC")
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') ORDER BY products.date_posted DESC")
         users = query_db("SELECT users.*, users.username AS seller_username FROM users INNER JOIN products ON users.user_id = products.seller_key")  
-    return render_template("home_signed_in.html", products=products, users=users, search=search)
+    return render_template("home_signed_in.html", products=products, search=search)
+
+@app.before_request
+def check_active_user():
+    user_id = session.get('user_id')
+    if user_id:
+        user = query_db("SELECT is_active FROM users WHERE user_id = ?",(user_id,), one=True)
+        if not user or user['is_active'] != 1:
+            session.clear()
+            flash("Your account has been disabled by an administrator.")
+            return redirect(url_for('login'))
 
 @app.route('/product/<int:product_id>')
 def product(product_id):
@@ -109,7 +119,8 @@ def product_signed_in(product_id):
 @app.route('/notifications_signed_in/<int:user_id>')
 def notifications_signed_in(user_id):
     notifications = query_db("SELECT alerts.*, offers.offer_id,offers.offer_price, offers.status AS offer_status, offers.seller_key, offers.byer_key, offers.seller_message, products.product_name, seller.username AS seller_username, meetups.meetup_id,meetups.meetup_time, meetups.location_key, locations.location_name,locations.description AS location_description FROM alerts INNER JOIN offers ON alerts.offer_key = offers.offer_id INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users AS seller ON offers.seller_key = seller.user_id  LEFT JOIN meetups ON offers.offer_id = meetups.offer_key LEFT JOIN locations ON meetups.location_key = locations.location_id WHERE alerts.user_key = ? ORDER BY alerts.date_created DESC, alerts.alert_id DESC", (user_id,))
-    return render_template("notifications_signed_in.html",notifications=notifications, user_id=user_id)
+    admin_notifications = query_db("SELECT admin_notifications.*,products.product_name FROM admin_notifications LEFT JOIN products ON admin_notifications.product_id = products.product_id WHERE admin_notifications.user_id = ? ORDER BY admin_notifications.date_created DESC, admin_notifications.notification_id DESC",(user_id,))
+    return render_template("notifications_signed_in.html",notifications=notifications, user_id=user_id, admin_notifications=admin_notifications)
 
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):
@@ -165,6 +176,7 @@ def signup():
                 db.commit()
                 # log the user in immeadiately after signup by storing ID
                 session['user_id'] = cursor.lastrowid
+                session['is_admin'] = 0
                 flash('You have successfully created an account on TOI Market!')
                 return redirect(url_for('home_signed_in'))
     return render_template('signup.html', msg=msg)
@@ -184,11 +196,14 @@ def login():
             user = query_db(sql, (email,),one=True)
             if user:
                 #we got a user!!
+                if user['is_active'] != 1:
+                    msg = "This account has been disabled."
                 #check password matches-
-                if check_password_hash(user['password'],password):
+                elif check_password_hash(user['password'],password):
                     #we are logged in successfully
                     #Store the username in the session
                     session['user_id'] = user['user_id']
+                    session['is_admin'] = user['is_admin']
                     flash("Logged in successfully!")
                     return redirect(url_for('home_signed_in'))
                 else:
@@ -214,9 +229,9 @@ def logout():
 @app.route('/like/<int:product_id>', methods=['POST'])
 def like_product(product_id):
     user_id = session.get('user_id')
-    #if not user_id:
-        #flash("You must be logged in to like products.")
-        #return redirect(url_for('login'))
+    if not user_id:
+        flash("You must be logged in to like products.")
+        return redirect(url_for('login'))
     alr_liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
     db = get_db()
     if alr_liked:
@@ -253,7 +268,7 @@ def add_product():
         user_id = session['user_id']
         today = date.today().isoformat()
         db = get_db()
-        db.execute("INSERT INTO products (product_name, description, price_suggested, seller_key, image_url, date_posted, status, health_hazards, likes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (product_name, description, price, user_id, '/static/uploads/' + filename, today,'available', hazards, 0))
+        db.execute("INSERT INTO products (product_name, description, price_suggested, seller_key, image_url, date_posted, status, health_hazards, likes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (product_name, description, price, user_id, '/static/uploads/' + filename, today,'pending', hazards, 0))
         db.commit()
         flash("Your product has been added!")
         return redirect(url_for('userprofile_signed_in', user_id=user_id))
@@ -357,6 +372,113 @@ def change_product_status(product_id):
     db.commit()
     flash(flash_message)
     return redirect(url_for('product_signed_in', product_id=product_id))
+
+# admin routes
+@app.route('/admin')
+def admin_dashboard():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+    user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,), one=True)
+    if not user or user['is_admin'] != 1:
+        flash("You do not have permission to access the admin page.")
+        return redirect(url_for('home_signed_in'))
+    pending_products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status = 'pending' ORDER BY products.date_posted DESC")
+    reports = query_db("SELECT reports.*, products.product_name, products.image_url, users.username AS reporter_username FROM reports INNER JOIN products ON reports.product_id = products.product_id INNER JOIN users ON reports.user_id = users.user_id ORDER BY reports.date_reported DESC")
+    users = query_db("SELECT * FROM users ORDER BY username")
+    return render_template('admin_signed_in.html',pending_products=pending_products, reports=reports, users=users)
+
+@app.route('/admin/approve_product/<int:product_id>', methods=['POST'])
+def approve_product(product_id):
+    user_id = session.get('user_id')
+    admin = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,),one=True)
+    if not admin or admin['is_admin'] != 1:
+        flash("You do not have permission to do this.")
+        return redirect(url_for('home_signed_in'))
+    db = get_db()
+    product = query_db("SELECT * FROM products WHERE product_id = ?",(product_id,),one=True)
+    if not product:
+        flash("Product not found.")
+        return redirect(url_for('admin_dashboard'))
+    db.execute("UPDATE products SET status = 'available' WHERE product_id = ?",(product_id,))
+    db.execute("INSERT INTO admin_notifications (user_id, product_id, message, date_created) VALUES (?, ?, ?, ?)",(product['seller_key'],product_id, f"Your product '{product['product_name']}' has been approved and is now visible on Tōī Market.", date.today().isoformat()))
+    db.commit()
+    flash("Product approved.")
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
+def admin_delete_product(product_id):
+    admin_id = session.get('user_id')
+    admin = query_db("SELECT * FROM users WHERE user_id = ?", (admin_id,), one=True)
+    if not admin or admin['is_admin'] != 1:
+        flash("You do not have permission to do this.")
+        return redirect(url_for('home_signed_in'))
+    product = query_db("SELECT * FROM products WHERE product_id = ?", (product_id,), one=True)
+    if not product:
+        flash("Product not found.")
+        return redirect(url_for('admin_dashboard'))
+    db = get_db()
+    # delete/hide product
+    db.execute("UPDATE products SET status = 'deleted' WHERE product_id = ?",(product_id,))
+    db.execute("DELETE FROM reports WHERE product_id = ?",(product_id,))
+    # go tell seller
+    db.execute("INSERT INTO admin_notifications (user_id, product_id, message, date_created) VALUES (?, ?, ?, ?)",(product['seller_key'],
+            product_id, f"Your product '{product['product_name']}' was removed by an administrator.", date.today().isoformat()))
+    db.commit()
+    flash("Product deleted and seller notified.")
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+def admin_delete_user(user_id):
+    admin_id = session.get('user_id')
+    admin = query_db("SELECT * FROM users WHERE user_id = ?",(admin_id,),one=True)
+    if not admin or admin['is_admin'] != 1:
+        flash("You do not have permission to do this.")
+        return redirect(url_for('home_signed_in'))
+    if user_id == admin_id:
+        flash("You cannot delete your own admin account.")
+        return redirect(url_for('admin_dashboard'))
+    user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,), one=True)
+    if not user:
+        flash("User not found.")
+        return redirect(url_for('admin_dashboard'))
+    db = get_db()
+    db.execute("UPDATE users SET is_active = 0 WHERE user_id = ?",(user_id,))
+    db.commit()
+    flash("User account disabled.")
+    return redirect(url_for('admin_dashboard'))
+
+# users reporting products route
+@app.route('/report_product/<int:product_id>', methods=['POST'])
+def report_product(product_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("You must be logged in to report a product.")
+        return redirect(url_for('login'))
+    product = query_db("SELECT * FROM products WHERE product_id = ?",(product_id,),one=True)
+    if not product:
+        flash("Product not found.")
+        return redirect(url_for('home_signed_in'))
+    reason = request.form.get('reason', '').strip()
+    if not reason:
+        flash("Please provide a reason for the report.")
+        return redirect(url_for('product_signed_in', product_id=product_id))
+    if product['seller_key'] == user_id:
+        flash("You cannot report your own product.")
+        return redirect(url_for('product_signed_in',product_id=product_id))
+    existing_report = query_db("SELECT * FROM reports WHERE product_id = ? AND user_id = ?",(product_id, user_id),one=True)
+    if existing_report:
+        flash("You have already reported this product.")
+        return redirect(url_for('product_signed_in', product_id=product_id))
+    db = get_db()
+    db.execute("INSERT INTO reports (product_id, user_id, reason, date_reported) VALUES (?, ?, ?, ?)",(product_id, user_id, reason, date.today().isoformat()))
+    db.commit()
+    flash("Product reported to an administrator.")
+    return redirect(url_for('product_signed_in', product_id=product_id))
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

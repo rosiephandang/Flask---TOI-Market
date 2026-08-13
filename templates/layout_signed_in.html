@@ -19,7 +19,10 @@
 
     <ul>
         <li><a href="{{ url_for('home_signed_in') }}" class="active">Home</a></li>
-
+        {% if session.get('user_id') and session.get('is_admin') %}
+            <li><a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            </li>
+        {% endif %}
         <!--just normal layout now guys -->
         <li><a href="{{ url_for('about_us_signed_in', user_id=session['user_id']) }} " class="active1" >About Us</a></li>
         <li><a href="{{ url_for('notifications_signed_in', user_id=session['user_id']) }} " class="active2" >Notifications</a></li>

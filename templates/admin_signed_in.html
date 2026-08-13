@@ -1,0 +1,65 @@
+{% extends "layout_signed_in.html" %}
+
+{% block body %}
+
+<div class="admin-page">
+    <h1>Admin Dashboard</h1>
+    <section class="admin-section">
+        <h2>Products Awaiting Approval</h2>
+        {% for product in pending_products %}
+        <div class="admin-product">
+            <img src="{{ product['image_url'] }}" alt="{{ product['product_name'] }}">
+            <div>
+                <h3>{{ product['product_name'] }}</h3>
+                <p>Seller: {{ product['seller_username'] }}</p>
+                <p>${{ product['price_suggested'] }}</p>
+                <p>{{ product['description'] }}</p>
+                <form action="{{ url_for('approve_product', product_id=product['product_id']) }}" method="POST">
+                    <button type="submit">Approve</button>
+                </form>
+                <form action="{{ url_for('admin_delete_product', product_id=product['product_id']) }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p>No products are waiting for approval.</p>
+        {% endfor %}
+    </section>
+
+    <section class="admin-section">
+        <h2>Product Reports</h2>
+        {% for report in reports %}
+        <div class="admin-report">
+            <h3>{{ report['product_name'] }}</h3>
+            <p>Reported by: {{ report['reporter_username'] }}</p>
+            <p>Reason: {{ report['reason'] }}</p>
+            <p>Date: {{ report['date_reported'] }}</p>
+            <form action="{{ url_for('admin_delete_product', product_id=report['product_id']) }}" method="POST">
+                <button type="submit">Delete Product</button>
+            </form>
+        </div>
+        {% else %}
+        <p>No reports.</p>
+        {% endfor %}
+    </section>
+
+    <section class="admin-section">
+        <h2>Users</h2>
+        {% for user in users %}
+        <div class="admin-user">
+            <p>{{ user['username'] }}:{{ user['email'] }}</p>
+            {% if user['is_active'] == 1 %}
+                {% if user['is_admin'] != 1 %}
+                <form action="{{ url_for('admin_delete_user', user_id=user['user_id']) }}" method="POST">
+                    <button type="submit">Disable User</button>
+                </form>
+                {% endif %}
+            {% else %}
+                <p>Account disabled</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

@@ -259,3 +259,35 @@ CREATE TABLE buy_requests (
 );
 
 ALTER TABLE offers ADD COLUMN seller_message VARCHAR;
+
+
+ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0;
+
+UPDATE users
+SET is_admin = 1
+WHERE email = 'admin@burnside.school.nz';
+
+CREATE TABLE admin_notifications (
+    notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    product_id INTEGER,
+    message TEXT NOT NULL,
+    date_created DATE NOT NULL,
+    is_read INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1;
+
+CREATE TABLE reports (
+    report_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    reason TEXT NOT NULL,
+    date_reported DATE NOT NULL,
+    status TEXT DEFAULT 'unresolved',
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+

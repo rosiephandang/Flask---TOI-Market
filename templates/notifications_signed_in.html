@@ -2,6 +2,17 @@
 {% block body %}
 
 <div class="notifications-page">
+    <h2>Admin Notifications</h2>
+    {% for notification in admin_notifications %}
+        <div class="notification admin-notification">
+            <h3>{{ notification['message'] }}</h3>
+            {% if notification['product_name'] %}
+                <p>Product: {{ notification['product_name'] }}</p>
+            {% endif %}
+            <p>Date:{{ notification['date_created'] }}</p>
+        </div>
+    {% endfor %}
+
     <h1>Notifications</h1>
     {% for notification in notifications %}
         <div class="notification">
@@ -10,7 +21,6 @@
             <p>Seller: {{ notification['seller_username'] }}</p>
             <p>Offer: ${{ notification['offer_price'] }}</p>
             <p>Date: {{ notification['date_created'] }}</p>
-
             {% if notification['seller_key'] == session['user_id'] %}
                 {% if notification['offer_status'] == 'pending' %}
                     <a href="{{ url_for('requests_page') }}" class="notification-button">View Request</a>
@@ -37,9 +47,10 @@
                 {% endif %}            
             {% endif %}
         </div>
-    {% else %}
-        <p>You have no notifications.</p>
     {% endfor %}
+    {% if not notifications and not admin_notifications %}
+        <p>You have no notifications.</p>
+    {% endif %}
 </div>
 
     
