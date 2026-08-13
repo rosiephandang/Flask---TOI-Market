@@ -38,26 +38,26 @@ def query_db(query, args=(), one=False):
 def home():
     search = request.args.get('search', '').strip()
     if search:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') ORDER BY products.date_posted DESC", (
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC", (
             '%' + search + '%',
             '%' + search + '%',
             '%' + search + '%'
         ))   
     else:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') ORDER BY products.date_posted DESC")
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC")
     return render_template("home.html", products=products, search=search)
 
 @app.route('/signed_in')
 def home_signed_in():
     search = request.args.get('search', '').strip()
     if search:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') ORDER BY products.date_posted DESC", (
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC", (
             '%' + search + '%',
             '%' + search + '%',
             '%' + search + '%'
         ))   
     else:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') ORDER BY products.date_posted DESC")
+        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC")
         users = query_db("SELECT users.*, users.username AS seller_username FROM users INNER JOIN products ON users.user_id = products.seller_key")  
     return render_template("home_signed_in.html", products=products, search=search)
 
@@ -444,7 +444,12 @@ def admin_delete_user(user_id):
         flash("User not found.")
         return redirect(url_for('admin_dashboard'))
     db = get_db()
-    db.execute("UPDATE users SET is_active = 0 WHERE user_id = ?",(user_id,))
+    if user['is_active']== 1:
+        db.execute("UPDATE users SET is_active = 0 WHERE user_id = ?",(user_id,))
+        flash(f"{user['username']}'s account has been disabled.")
+    else:
+        db.execute("UPDATE users SET is_active = 1 WHERE user_id = ?",(user_id,))
+        flash(f"{user['username']}'s account has been enabled.")
     db.commit()
     flash("User account disabled.")
     return redirect(url_for('admin_dashboard'))

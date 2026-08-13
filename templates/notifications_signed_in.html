@@ -1,6 +1,6 @@
 {% extends "layout_signed_in.html" %}
 {% block body %}
-
+<a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
 <div class="notifications-page">
     <h2>Admin Notifications</h2>
     {% for notification in admin_notifications %}

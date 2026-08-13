@@ -1,7 +1,7 @@
 {% extends "layout_signed_in.html" %}
 
 {% block body %}
-
+<a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
 <div class="admin-page">
     <h1>Admin Dashboard</h1>
     <section class="admin-section">
@@ -49,14 +49,17 @@
         {% for user in users %}
         <div class="admin-user">
             <p>{{ user['username'] }}:{{ user['email'] }}</p>
-            {% if user['is_active'] == 1 %}
-                {% if user['is_admin'] != 1 %}
+            {% if user['is_admin'] != 1 %}
                 <form action="{{ url_for('admin_delete_user', user_id=user['user_id']) }}" method="POST">
-                    <button type="submit">Disable User</button>
+                    {% if user['is_active'] == 1 %}
+                        <button type="submit">Disable User</button>
+                    {% else %}
+                        <button type="submit">Enable User</button>
+                    {% endif %}
                 </form>
+                {% if user['is_active'] == 0 %}
+                    <p>Account disabled</p>
                 {% endif %}
-            {% else %}
-                <p>Account disabled</p>
             {% endif %}
         </div>
         {% endfor %}
