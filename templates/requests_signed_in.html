@@ -7,24 +7,26 @@
 </a>
 <div class="requests-page">
     <h1>Incoming Offers</h1>
-    {% for request in requests %}
+    {% for offer in offers %}
         <div class="buy-request">
             <div class="request-product">
-                <img src="{{ request['image_url'] }}" alt="{{ request['product_name'] }}">
+                <!--<img src="{{ request['image_url'] }}" alt="{{ request['product_name'] }}">-->
                 <div>
-                    <h2>{{ request['product_name'] }}</h2>
-                    <p>Requested by: {{ request['buyer_username'] }}</p>
-                    <p>Offer: ${{ request['offer_price'] }}</p>
-                    <p>Date: {{ request['date_sent'] }}</p>
-                    {% if request['message'] %}
-                        <p> Message: {{ request['message'] }}</p>
+                    <h2>{{ offer['product_name'] }}</h2>
+                    <p>Requested by: {{ offer['buyer_username'] }}</p>
+                    <p>Offer: ${{ offer['offer_price'] }}</p>
+                    <p>Date: {{ offer['date_sent'] }}</p>
+                    {% if offer['message'] %}
+                        <p> Message: {{ offer['message'] }}</p>
                     {% endif %}
-                    <p>Status: {{ request['status'] }}</p>
+                    <p>Status: {{ offer['status'] }}</p>
                 </div>
             </div>
-            {% if request['status'] == 'pending' %}
-                <form action="{{ url_for('approve_request', offer_id=request['offer_id']) }}" method="POST" class="approve-form">
+            {% if offer['status'] == 'pending' %}
+                <form action="{{ url_for('approve_request', offer_id=offer['offer_id']) }}" method="POST" class="approve-form">
                     <h3>Approve this offer</h3>
+                    <label>Message to buyer:</label>
+                    <textarea name="seller_message" placeholder="Message for the buyer..." required></textarea>
                     <label for="meeting_location">
                         Meeting location:
                     </label>
@@ -34,11 +36,13 @@
                             <option value="{{ location['location_id'] }}">{{ location['location_name'] }}
                             </option>
                         {% endfor %}
-                    </select>
+                    </select>          
+                    <label>Meet-up date and time:</label>
+                    <input type="datetime-local" name="meetup_time" required>
                     <button type="submit" class="approve-button">Approve Offer
                     </button>
                 </form>
-            {% elif request['status'] == 'approved' %}
+            {% elif offer['status'] == 'approved' %}
                 <p class="approved">This offer has been approved.</p>
             {% endif %}
         </div>

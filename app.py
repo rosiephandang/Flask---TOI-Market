@@ -111,8 +111,8 @@ def product_signed_in(product_id):
 
 @app.route('/notifications_signed_in/<int:user_id>')
 def notifications_signed_in(user_id):
-    notifications = query_db("SELECT alerts.alert_id, alerts.message, alerts.date_created, alerts.status AS notification_status, offers.offer_id, offers.offer_price, offers.status AS offer_status, products.product_id, products.product_name, products.image_url, users.username AS buyer_username FROM alerts INNER JOIN offers ON alerts.offer_key = offers.offer_id INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users ON offers.byer_key = users.user_id WHERE alerts.user_key = ? ORDER BY alerts.date_created DESC", (user_id,))
-    return render_template("notifications_signed_in.html",notifications=notifications)
+    notifications = query_db("SELECT alerts.*, offers.offer_id,offers.offer_price, offers.status AS offer_status, offers.seller_key, offers.byer_key, offers.seller_message, products.product_name, seller.username AS seller_username, meetups.meetup_id,meetups.meetup_time, meetups.location_key, locations.location_name,locations.description AS location_description FROM alerts INNER JOIN offers ON alerts.offer_key = offers.offer_id INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users AS seller ON offers.seller_key = seller.user_id  LEFT JOIN meetups ON offers.offer_id = meetups.offer_key LEFT JOIN locations ON meetups.location_key = locations.location_id WHERE alerts.user_key = ? ORDER BY alerts.date_created DESC, alerts.alert_id DESC", (user_id,))
+    return render_template("notifications_signed_in.html",notifications=notifications, user_id=user_id)
 
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):
@@ -287,30 +287,32 @@ def request_product(product_id):
 
 @app.route('/requests')
 def requests_page():
-    seller_id = session.get('user_id')
-    requests = query_db("SELECT offers.offer_id, offers.offer_price, offers.message, offers.date_sent, offers.status, products.product_id, products.product_name, products.image_url, users.username AS buyer_username FROM offers INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users ON offers.byer_key = users.user_id WHERE offers.seller_key = ? ORDER BY offers.date_sent DESC", (seller_id,))
+    user_id = session.get('user_id')
+    offers = query_db("SELECT offers.*, products.product_name, products.image_url, users.username AS buyer_username FROM offers INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users ON offers.byer_key = users.user_id WHERE offers.seller_key = ? AND offers.status = 'pending' ORDER BY offers.date_sent DESC", (user_id,))
     locations = query_db("SELECT * FROM locations ORDER BY location_name")
-    return render_template("requests_signed_in.html", requests=requests, locations=locations)
+    return render_template("requests_signed_in.html", offers=offers, locations=locations)
 
 @app.route('/approve_request/<int:offer_id>', methods=['POST'])
 def approve_request(offer_id):
     seller_id = session.get('user_id')
     location_id = request.form['meeting_location']
+    seller_message = request.form['seller_message']
+    meetup_time = request.form['meetup_time']
     db = get_db()
     # find the offer make sure it belongs to this seller
-    offer = query_db("SELECT * FROM offers WHERE offer_id = ? AND seller_key = ?", (offer_id, seller_id), one=True)
+    offer = query_db("SELECT * FROM offers WHERE offer_id = ? AND seller_key = ? AND status = 'pending'", (offer_id, seller_id), one=True)
     if not offer:
         flash("Offer not found.")
         return redirect(url_for('requests_page'))
     # approve the offer
-    db.execute("UPDATE offers SET status = 'approved' WHERE offer_id = ?", (offer_id,))
+    db.execute("UPDATE offers SET status = 'approved', seller_message = ? WHERE offer_id = ? AND seller_key = ?", (seller_message, offer_id, seller_id))
     # meetup
-    db.execute("INSERT INTO meetups (offer_key,location_key, meetup_time, status)VALUES (?, ?, ?, ?)", (offer_id, location_id, None, 'pending'))
+    db.execute("INSERT INTO meetups (offer_key,location_key, meetup_time, status)VALUES (?, ?, ?, ?)", (offer_id, location_id, meetup_time, 'scheduled'))
     # ntify buyer
-    db.execute("INSERT INTO alerts (user_key, offer_key, alert_type, message, date_created,status)VALUES (?, ?, ?, ?, ?, ?)", (offer['byer_key'], offer_id, 2, 'Your offer has been approved!', date.today().isoformat(), 'unread'))
+    db.execute("INSERT INTO alerts (user_key, offer_key, alert_type, message, date_created,status)VALUES (?, ?, ?, ?, ?, ?)", (offer['byer_key'], offer_id, 1, 'Your offer has been approved! The seller has sent you a meet-up message.', date.today().isoformat(), 'unread'))
     db.commit()
-    flash("Offer approved!")
-    return redirect(url_for('requests_page'))
+    flash("Offer approved and byer notified!")
+    return redirect(url_for('notifications_signed_in', user_id=seller_id))
 
 
 

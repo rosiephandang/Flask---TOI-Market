@@ -7,16 +7,34 @@
         <div class="notification">
             <h3>{{ notification['message'] }}</h3>
             <p>Product: {{ notification['product_name'] }}</p>
-            <p>Requested by: {{ notification['buyer_username'] }}</p>
+            <p>Seller: {{ notification['seller_username'] }}</p>
             <p>Offer: ${{ notification['offer_price'] }}</p>
             <p>Date: {{ notification['date_created'] }}</p>
-            <p>Status: {{ notification['offer_status'] }}</p>
-            {% if notification['offer_status'] == 'pending' %}
-                <a href="{{ url_for('requests_page') }}" class="notification-button">
-                    View Request
-                </a>
-            {% elif notification['offer_status'] == 'approved' %}
-                <p>This request has been approved.</p>
+
+            {% if notification['seller_key'] == session['user_id'] %}
+                {% if notification['offer_status'] == 'pending' %}
+                    <a href="{{ url_for('requests_page') }}" class="notification-button">View Request</a>
+                {% elif notification['offer_status'] == 'approved' %}
+                    <h3>Offer Approved!</h3>
+                {% endif %}
+            {% elif notification['byer_key'] == session['user_id'] %}
+                {% if notification['offer_status'] == 'approved' %}
+                    <h3>Offer Approved!</h3>
+                    {% if notification['seller_message'] %}
+                        <p>Message from seller:</p>
+                        <p>{{ notification['seller_message'] }}</p>
+                    {% endif %}
+                    {% if notification['meetup_id'] %}
+                        <h3>Meet-up Details</h3>
+                        <p>Location: {{ notification['location_name'] }}</p>
+                        <p>Date & Time: {{ notification['meetup_time'] }}</p>
+                        {% if notification['location_key'] %}
+                            <a href="{{ url_for('meeting_signed_in',location_id=notification['location_key']) }}" class="notification-button">View Location on Map</a>
+                        {% endif %}
+                    {% else %}
+                        <p>Meet-up details have not been created yet.</p>
+                    {% endif %}
+                {% endif %}            
             {% endif %}
         </div>
     {% else %}
