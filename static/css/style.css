@@ -335,6 +335,41 @@ li.dropdown {
     display: block;
 }
 
+.products_sold_list {
+    margin-top: 40px;
+}
+
+.sold_products_row {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    padding: 10px 0 20px;
+}
+
+.sold-product {
+    flex: 0 0 200px;
+    width: 200px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.sold-product img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.sold-product h3 {
+    margin: 10px 0 5px;
+}
+
+.sold-product p {
+    margin: 5px 0;
+}
+
 .backhome {
     display: inline-block;
     margin: 25px 0 0 40px;
@@ -440,4 +475,54 @@ li.dropdown {
 
 .seller-product p {
     margin: 5px 0;
+}
+
+.delete-product-button {
+    margin-top: 20px;
+    padding: 10px 25px;
+    background-color: white;
+    border: 1px solid #b00020;
+    color: #b00020;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.delete-product-button:hover {
+    background-color: #b00020;
+    color: white;
+}
+
+
+
+
+
+
+.sold-product-button, .available-product-button {
+    margin-top: 15px;
+    padding: 10px 25px;
+    background-color: white;
+    border: 1px solid #108b96;
+    color: #108b96;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.sold-product-button:hover, .available-product-button:hover {
+    background-color: #108b96;
+    color: white;
+}
+
+.statussold {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.sold-message {
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.sold-message h3 {
+    margin-top: 0;
 }

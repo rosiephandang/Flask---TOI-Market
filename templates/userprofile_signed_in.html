@@ -17,8 +17,6 @@
             <a href="{{ url_for('add_product') }}">+ Add a Product
             </a>
         </div>
-        <br><p class="products_liked">Products liked:{{ user['products_liked'] }}</p><br>
-        <p class="products_sold">Products sold: {{ user['products_sold'] }}</p><br>
         <div class="updating_username">
             <form method="POST">
                 <h5>Change current username</h5>
@@ -36,7 +34,6 @@
             <p>Joined: {{ user['date_joined'] }}</p>
     </div>
     <div class="products_liked_list">
-        <div class="products_liked_list">
         <h2>Products You've Liked</h2>
         <div class="liked_products_row">
             {% for product in liked_products %}
@@ -52,6 +49,24 @@
                 </a>
             {% else %}
                 <p>You haven't liked any products yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="products_sold_list">
+        <h2>Products You've Sold</h2>
+        <div class="sold_products_row">
+            {% for product in sold_products %}
+                <a href="{{ url_for('product_signed_in', product_id=product['product_id']) }}" class="sold-product">
+                    <img src="{{ product['image_url'] }}" alt="{{ product['product_name'] }}">
+                    <div>
+                        <h3>{{ product['product_name'] }}</h3>
+                        <p>${{ product['price_suggested'] }}</p>
+                        <p>Likes: {{ product['likes'] }}</p>
+                        <p>Sold: {{ product['date_posted'] }}</p>
+                    </div>
+                </a>
+            {% else %}
+                <p>You haven't sold any products yet.</p>
             {% endfor %}
         </div>
     </div>
