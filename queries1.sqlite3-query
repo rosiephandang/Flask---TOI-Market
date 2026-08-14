@@ -291,3 +291,82 @@ CREATE TABLE reports (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
+
+INSERT INTO locations (location_name, description, x_co, y_co) VALUES
+('Library', 'The school library, providing books, computers, study spaces, and other learning resources for students.', -43.507647427180096, 172.57689165927573),
+
+('Student Office', 'The Student Office provides assistance with student administration, enquiries, forms, and general student support.', -43.50798963199458, 172.57656678832973),
+
+('Conselling Offices', 'The counselling offices provide a private and supportive space where students can access guidance and wellbeing support.', -43.50817638512911, 172.57686987793656),
+
+('Aurora Center Main Entrance', 'The main entrance to the Aurora Centre, providing access to the facilities and rooms inside the building.', -43.508630213015884, 172.5763347099349),
+
+('Aurora Center Side Entrance', 'The side entrance to the Aurora Centre, providing an alternative access point to the building.', -43.5083870465815, 172.57618852955963),
+
+('Green Room', 'A room within the school used for meetings, activities, performances, or other school events.', -43.50842108994057, 172.57585727675928),
+
+('M Block', 'M Block contains classrooms and learning spaces used by students and teachers during the school day.', -43.5080145137049, 172.57584520682238),
+
+('Greers Carpark 1', 'A designated school car park providing parking and access to the school grounds.', -43.508168337956626, 172.57637903534714),
+
+('Greers Carpark 2', 'A designated school car park providing parking and access to nearby school facilities.', -43.508290738400184, 172.57709839217782),
+
+('Greers Carpark 3', 'A designated school car park located near the school grounds and surrounding facilities.', -43.50758081236427, 172.57780509173148),
+
+('Memorial Carpark', 'A school car park providing parking and access to the nearby school buildings and memorial area.', -43.50816002356235, 172.57516104709674),
+
+('D Block', 'D Block contains school classrooms and learning spaces used for regular teaching and student activities.', -43.50775866706086, 172.5773494638584),
+
+('D Extension', 'An extension of D Block containing additional classroom and learning spaces.', -43.50763014545257, 172.57747392736428),
+
+('Canteen', 'The school canteen provides food and drinks for students and staff during designated break and lunch times.', -43.507419002219926, 172.57727562958192),
+
+('A Block', 'A Block contains classrooms and learning spaces used by students and teachers.', -43.50769321865708, 172.57624085886508),
+
+('E Block', 'E Block contains classrooms and other learning spaces used throughout the school day.', -43.50743656387618, 172.57561517882803),
+
+('Tech Support', 'The technology support area provides assistance with school computers, devices, accounts, and other technical issues.', -43.50716874903075, 172.57603742736583),
+
+('Learning Support', 'Learning Support provides additional assistance and resources to help students with their learning needs.', -43.507271659503374, 172.57598272310113),
+
+('B Block', 'B Block contains classrooms and learning spaces used for teaching and student activities.', -43.50725058146906, 172.57644770935093),
+
+('Quad', 'The school quad is an open outdoor area where students can gather, socialise, and move between nearby buildings.', -43.507625025460186, 172.57658105100234),
+
+('C Block', 'C Block contains classrooms and learning spaces used by students and teachers.', -43.5072047057248, 172.57708535595754),
+
+('G Block', 'G Block contains classrooms and other school learning facilities.', -43.50678190326979, 172.5768528628309),
+
+('X Block', 'X Block contains school facilities and learning spaces used by students and staff.', -43.506975326457486, 172.57633488182466),
+
+('N Block', 'N Block contains classrooms and learning spaces used for teaching throughout the school day.', -43.50671742873616, 172.57630069165927),
+
+('H Block', 'H Block contains classrooms and other learning spaces used by students and teachers.', -43.506416186544314, 172.57641968579543),
+
+('K Block', 'K Block contains classrooms and learning facilities used by students during the school day.', -43.50614446285708, 172.576504920627),
+
+('Bike Stands', 'A designated area where students and staff can securely leave their bicycles while at school.', -43.50612145973775, 172.5762254296666),
+
+('Dance Hall', 'A dedicated indoor space used for dance, movement, rehearsals, and other physical or performing arts activities.', -43.50621778524143, 172.5767229632202),
+
+('Hunter Gym', 'An indoor gymnasium used for physical education, sports, training, and school sporting activities.', -43.5064075604109, 172.57717292384442),
+
+('Cross Gym', 'An indoor sports facility used for physical education, games, training, and other sporting activities.', -43.50673103943817, 172.577680368425),
+
+('Swimming Pool', 'The school swimming pool is used for swimming lessons, physical education, training, and aquatic activities.', -43.50692459587297, 172.57754345048616),
+
+('Tennis Courts', 'Outdoor courts used for tennis lessons, recreational activities, practices, and school competitions.', -43.50702810846365, 172.57802909080746),
+
+('P Block', 'P Block contains classrooms and learning spaces used by students and teachers.', -43.5068587895993, 172.57575551904634),
+
+('R Block', 'R Block contains classrooms and other school facilities used during the school day.', -43.507277722368, 172.5750513123889),
+
+('Lower Courts', 'Outdoor courts used for physical education, sports practices, recreation, and school competitions.', -43.50654240192852, 172.57904321594907),
+
+('Field 1', 'An outdoor sports field used for physical education, training, recreational activities, and school sports games.', -43.50590482252332, 172.57795415103504),
+
+('Field 2', 'An outdoor sports field used for physical education, training, recreational activities, and school sports games.', -43.50500635024304, 172.57640936386906),
+
+('Field 3', 'An outdoor sports field used for physical education, training, recreational activities, and school sports games.', -43.506539030199185, 172.57429621161376);
+
+
