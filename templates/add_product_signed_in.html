@@ -1,7 +1,7 @@
 {% extends "layout_signed_in.html" %}
 
 {% block body %}
-
+<a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
 <div class="addproduct">
     <h1>Add a Product</h1>
     <form action="{{ url_for('add_product') }}" method="POST" enctype="multipart/form-data">

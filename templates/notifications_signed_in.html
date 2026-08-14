@@ -2,20 +2,21 @@
 {% block body %}
 <a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
 <div class="notifications-page">
-    <h2>Admin Notifications</h2>
-    {% for notification in admin_notifications %}
-        <div class="notification admin-notification">
-            <h3>{{ notification['message'] }}</h3>
-            {% if notification['product_name'] %}
-                <p>Product: {{ notification['product_name'] }}</p>
-            {% endif %}
-            <p>Date:{{ notification['date_created'] }}</p>
-        </div>
-    {% endfor %}
-    {% if not admin_notifications %}
-        <p>You have no notifications from admin.</p>
+    {%  if not session.get('is_admin') %}
+        <h2>Admin Notifications</h2>
+        {% for notification in admin_notifications %}
+            <div class="notification admin-notification">
+                <h3>{{ notification['message'] }}</h3>
+                {% if notification['product_name'] %}
+                    <p>Product: {{ notification['product_name'] }}</p>
+                {% endif %}
+                <p>Date:{{ notification['date_created'] }}</p>
+            </div>
+        {% endfor %}
+        {% if not admin_notifications %}
+            <p>You have no notifications from admin.</p>
+        {% endif %}
     {% endif %}
-
     <h1>Notifications</h1>
     {% for notification in notifications %}
         <div class="notification">

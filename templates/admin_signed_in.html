@@ -8,7 +8,7 @@
         <h2>Products Awaiting Approval</h2>
         {% for product in pending_products %}
         <div class="admin-product">
-            <img src="{{ product['image_url'] }}" alt="{{ product['product_name'] }}">
+            <img class="admin-product-image" src="{{ product['image_url'] }}" alt="{{ product['product_name'] }}">
             <div>
                 <h3>{{ product['product_name'] }}</h3>
                 <p>Seller: {{ product['seller_username'] }}</p>
@@ -31,13 +31,16 @@
         <h2>Product Reports</h2>
         {% for report in reports %}
         <div class="admin-report">
-            <h3>{{ report['product_name'] }}</h3>
-            <p>Reported by: {{ report['reporter_username'] }}</p>
-            <p>Reason: {{ report['reason'] }}</p>
-            <p>Date: {{ report['date_reported'] }}</p>
-            <form action="{{ url_for('admin_delete_product', product_id=report['product_id']) }}" method="POST">
-                <button type="submit">Delete Product</button>
-            </form>
+            <img src="{{ report['image_url'] }}" alt="{{ report['product_name'] }}">
+            <div>
+                <h3>{{ report['product_name'] }}</h3>
+                <p>Reported by: {{ report['reporter_username'] }}</p>
+                <p>Reason: {{ report['reason'] }}</p>
+                <p>Date: {{ report['date_reported'] }}</p>
+                <form action="{{ url_for('admin_delete_product', product_id=report['product_id']) }}" method="POST">
+                    <button type="submit">Delete Product</button>
+                </form>
+            </div>
         </div>
         {% else %}
         <p>No reports.</p>

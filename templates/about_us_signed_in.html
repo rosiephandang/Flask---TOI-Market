@@ -1,9 +1,42 @@
 {% extends "layout_signed_in.html" %}
 {% block body %}
-    <!-- sign-up page-->
-    <a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
-    <h1 class="test">Hello this is the about us signed in page</h1>
+<a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
 
-
+<div class="about-us">
+    <section class="about-section">
+        <h2>What is Tōī Market?</h2>
+        <p>Tōī Market is a legally ambiguous website: this means no selling merch if you're going to name it as said merch. It's created for art and tech students at school to sell the things they make.</p>
+        <p>This includes artworks, stickers, 3D models, electronics, product designs, and pretty much anything else that has been created in Art or Digi.
+        </p>
+    </section>
+    <section class="about-section">
+        <h2>Who is it for?</h2>
+        <p>Tōī Market is only available to students and teachers. Products are sold under usernames, allowing creators to build their own little corner of the marketplace.</p>
+        <p>It's also for anyone interested in very, <strong>very</strong> local, occasionally questionable-quality products and, hopefully, a good laugh.</p>
+    </section>
+    <section class="about-section">
+        <h2>How does buying work?</h2>
+        <p>There are no online payments. All payments are made in person.</p>
+        <p>If you're interested in buying something, you can send an offer to the seller. The seller can then look through their offers and choose the one they like the most.</p>
+        <p>Once an offer has been approved, the buyer and seller can organise a meet-up location using the school's map and complete the payment in person.</p>
+    </section>
+    <section class="about-section">
+        <h2>What does the website do?</h2>
+        <ul>
+            <li>Allows students to create accounts and log in.</li>
+            <li>Lets Art and Technology students list products they have made.</li>
+            <li>Provides a marketplace to browse available products.</li>
+            <li>Allows buyers to send offers to sellers.</li>
+            <li>Notifies buyers and sellers about offers and approvals.</li>
+            <li>Provides a map to help organise in-person meet-ups.</li>
+        </ul>
+    </section>
+    <section class="about-section about-ending">
+        <h2>Basically...</h2>
+        <p>Tōī Market is a place for creative students to sell their work, support other creators, and possibly discover something amazing.</p>
+        <p>Or something incredibly questionable.</p>
+        <h3>Either way, someone made it.</h3>
+    </section>
+</div>
     
 {% endblock %}
