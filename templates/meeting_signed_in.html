@@ -1,9 +1,219 @@
 {% extends "layout_signed_in.html" %}
 {% block body %}
-    <!-- sign-up page-->
     <a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
-    <h1 class="test">Hello this is the meeting signed in page</h1>
-
+    <h3 class="meetup-title">Meetup Locations</h3>
+    <div id="map"></div>
 
     
+{% endblock %}
+
+{% block scripts %}
+<script>
+const map = L.map('map')
+map.setView([-43.50745448832027, 172.57640244749655], 30)
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+
+const customIcon = L.icon({
+    iconUrl: 'leaf-green.png',
+    shadowUrl: 'leaf-shadow.png',
+    iconSize:     [38, 95], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+    })
+
+L.marker([-43.507647427180096, 172.57689165927573], {
+    title: "Library",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Library</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50798963199458, 172.57656678832973], {
+    title: "Student Office",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Student Office</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50817638512911, 172.57686987793656], {
+    title: "Conselling Offices",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Conselling Offices</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.508630213015884, 172.5763347099349], {
+    title: "Aurora Center Main Entrance",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Aurora Center Main Entrance</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.5083870465815, 172.57618852955963], {
+    title: "Aurora Center Side Entrance",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Aurora Center Side Entrance</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50842108994057, 172.57585727675928], {
+    title: "Green Room",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Green Room</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.5080145137049, 172.57584520682238], {
+    title: "M Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">M Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.508168337956626, 172.57637903534714], {
+    title: "Greers Carpark 1",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Greers Carpark 1</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.508290738400184, 172.57709839217782], {
+    title: "Greers Carpark 2",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Greers Carpark 2</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50758081236427, 172.57780509173148], {
+    title: "Greers Carpark 3",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Greers Carpark 3</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50816002356235, 172.57516104709674], {
+    title: "Memorial Carpark",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Memorial Carpark</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50775866706086, 172.5773494638584], {
+    title: "D Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">D Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50763014545257, 172.57747392736428], {
+    title: "D Extension",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">D Extension</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.507419002219926, 172.57727562958192], {
+    title: "Canteen",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Canteen</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50769321865708, 172.57624085886508], {
+    title: "A Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">A Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50743656387618, 172.57561517882803], {
+    title: "E Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">E Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50716874903075, 172.57603742736583], {
+    title: "Tech Support",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Tech Support</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.507271659503374, 172.57598272310113], {
+    title: "Learning Support",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Learning Support</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50725058146906, 172.57644770935093], {
+    title: "B Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">B Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.507625025460186, 172.57658105100234], {
+    title: "Quad",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Quad</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.5072047057248, 172.57708535595754], {
+    title: "C Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">C Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50678190326979, 172.5768528628309], {
+    title: "G Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">G Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.506975326457486, 172.57633488182466], {
+    title: "X Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">X Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50671742873616, 172.57630069165927], {
+    title: "N Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">N Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.506416186544314, 172.57641968579543], {
+    title: "H Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">H Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50614446285708, 172.576504920627], {
+    title: "K Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">K Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50612145973775, 172.5762254296666], {
+    title: "Bike Stands",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Bike Stands</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50621778524143, 172.5767229632202], {
+    title: "Dance Hall",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Dance Hall</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.5064075604109, 172.57717292384442], {
+    title: "Hunter Gym",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Hunter Gym</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50673103943817, 172.577680368425], {
+    title: "Cross Gym",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Cross Gym</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50692459587297, 172.57754345048616], {
+    title: "Swimming Pool",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Swimming Pool</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50702810846365, 172.57802909080746], {
+    title: "Tennis Courts",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Tennis Courts</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map); 
+
+L.marker([-43.5068587895993, 172.57575551904634], {
+    title: "P Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">P Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.507277722368, 172.5750513123889], {
+    title: "R Block",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">R Block</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50654240192852, 172.57904321594907], {
+    title: "Lower Courts",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Lower Courts</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50590482252332, 172.57795415103504], {
+    title: "Field 1",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Field 1</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.50500635024304, 172.57640936386906], {
+    title: "Field 2",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Field 2</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+L.marker([-43.506539030199185, 172.57429621161376], {
+    title: "Field 3",
+    //icon: customIcon,
+}).bindPopup('<div class="popup" draggable="true"><h5 class="hagleypark">Field 3</h5></div>', {maxWidth:400, maxHeight: 150}).addTo(map);
+
+</script>
+
 {% endblock %}

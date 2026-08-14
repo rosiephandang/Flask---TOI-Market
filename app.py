@@ -104,10 +104,10 @@ def about_us_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
     return render_template("about_us_signed_in.html", user=user)
 
-@app.route('/meeting_signed_in/<int:location_id>')
-def meeting_signed_in(location_id):
-    location = query_db("SELECT * FROM locations WHERE location_id = ?",(location_id,),one=True)
-    return render_template("meeting_signed_in.html", location=location)
+@app.route('/meeting_signed_in')
+def meeting_signed_in():
+    locations = query_db("SELECT * FROM locations ORDER BY location_name")
+    return render_template("meeting_signed_in.html", locations=locations)
 
 @app.route('/product_signed_in/<int:product_id>')
 def product_signed_in(product_id):

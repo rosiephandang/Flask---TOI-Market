@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Tōī Market | {% block title %}{% endblock %}</title>
 </head>
 
@@ -26,7 +27,7 @@
         <!--just normal layout now guys -->
         <li><a href="{{ url_for('about_us_signed_in', user_id=session['user_id']) }} " class="active1" >About Us</a></li>
         <li><a href="{{ url_for('notifications_signed_in', user_id=session['user_id']) }} " class="active2" >Notifications</a></li>
-        <li><a href="{{ url_for('meeting_signed_in', location_id=session['user_id']) }}" class="active3">Map</a></li>
+        <li><a href="{{ url_for('meeting_signed_in') }}" class="active3">Map</a></li>
 
         <li class="dropdown">
             <a href="#">Account</a>
@@ -51,6 +52,8 @@
 
 
 {% block body %}{% endblock %}
+
+{% block scripts %}{% endblock %}
 
 </body>
 </html>

@@ -526,3 +526,8 @@ li.dropdown {
 .sold-message h3 {
     margin-top: 0;
 }
+
+#map{
+    height: 500px;
+    width: 500px;
+}

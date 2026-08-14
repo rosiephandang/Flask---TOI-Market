@@ -12,6 +12,9 @@
             <p>Date:{{ notification['date_created'] }}</p>
         </div>
     {% endfor %}
+    {% if not admin_notifications %}
+        <p>You have no notifications from admin.</p>
+    {% endif %}
 
     <h1>Notifications</h1>
     {% for notification in notifications %}
