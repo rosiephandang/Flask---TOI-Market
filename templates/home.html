@@ -8,7 +8,9 @@
         <button type="submit">Search</button>
     </form>
 </div>
-
+{% if not products %}
+    <p>No products found.</p>
+{% endif %}
 <div class="threecolumn">
 {% for product in products %}
     <a class="linkpiority" href="{{ url_for('product', product_id=product['product_id']) }}">
