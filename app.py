@@ -50,6 +50,9 @@ def home():
 @app.route('/signed_in')
 def home_signed_in():
     search = request.args.get('search', '').strip()
+    if 'user_id' not in session:
+        flash("You must be logged in to view this page.")
+        return redirect(url_for('login'))
     if search:
         products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC", (
             '%' + search + '%',
@@ -88,11 +91,6 @@ def meeting(location_id):
     location = query_db("SELECT * FROM locations WHERE location_id = ?", (location_id,), one=True)
     return render_template("meeting.html", location=location)
 
-@app.route('/news/<int:user_id>')
-def news(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("news.html", user=user)
-
 @app.route('/about_us/<int:user_id>')
 def about_us(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
@@ -102,22 +100,35 @@ def about_us(user_id):
 @app.route('/about_us_signed_in/<int:user_id>')
 def about_us_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    if not user:
+        flash("User not found.")
+        return redirect(url_for('home_signed_in'))
     return render_template("about_us_signed_in.html", user=user)
 
 @app.route('/meeting_signed_in')
 def meeting_signed_in():
     locations = query_db("SELECT * FROM locations ORDER BY location_name")
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("You must be logged in to view meetings.")
+        return redirect(url_for('login'))
     return render_template("meeting_signed_in.html", locations=locations)
 
 @app.route('/product_signed_in/<int:product_id>')
 def product_signed_in(product_id):
     product = query_db("SELECT products.*, users.user_id AS seller_key, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?", (product_id,), one=True)
+    if not product:
+        flash("Product not found.")
+        return redirect(url_for('home_signed_in'))
     user_id = session.get('user_id')
     liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
     return render_template("product_signed_in.html",product=product, liked=liked)
 
 @app.route('/notifications_signed_in/<int:user_id>')
 def notifications_signed_in(user_id):
+    if 'user_id' not in session or session['user_id'] != user_id:
+        flash("You must be logged in to view notifications.")
+        return redirect(url_for('login'))
     notifications = query_db("SELECT alerts.*, offers.offer_id,offers.offer_price, offers.status AS offer_status, offers.seller_key, offers.byer_key, offers.seller_message, products.product_name, seller.username AS seller_username, meetups.meetup_id,meetups.meetup_time, meetups.location_key, locations.location_name FROM alerts INNER JOIN offers ON alerts.offer_key = offers.offer_id INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users AS seller ON offers.seller_key = seller.user_id  LEFT JOIN meetups ON offers.offer_id = meetups.offer_key LEFT JOIN locations ON meetups.location_key = locations.location_id WHERE alerts.user_key = ? ORDER BY alerts.date_created DESC, alerts.alert_id DESC", (user_id,))
     admin_notifications = query_db("SELECT admin_notifications.*,products.product_name FROM admin_notifications LEFT JOIN products ON admin_notifications.product_id = products.product_id WHERE admin_notifications.user_id = ? ORDER BY admin_notifications.date_created DESC, admin_notifications.notification_id DESC",(user_id,))
     return render_template("notifications_signed_in.html",notifications=notifications, user_id=user_id, admin_notifications=admin_notifications)
@@ -125,6 +136,9 @@ def notifications_signed_in(user_id):
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    if not user:
+        flash("Seller not found.")
+        return redirect(url_for('home_signed_in'))
     products = query_db("SELECT * FROM products WHERE seller_key = ? AND status != 'deleted' ORDER BY date_posted DESC", (user_id,))
     return render_template("seller_profile_signed_in.html", user=user, products=products)
 
@@ -132,6 +146,9 @@ def seller_profile_signed_in(user_id):
 def userprofile_signed_in(user_id):
     db = get_db()
     user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,),one=True)
+    if not user:
+        flash("User not found.")
+        return redirect(url_for('home_signed_in'))
     if request.method == "POST":
         new_username = request.form.get('username') 
         new_description = request.form.get('description')
@@ -278,6 +295,9 @@ def add_product():
 @app.route('/request_product/<int:product_id>', methods=['POST'])
 def request_product(product_id):
     user_id = session.get('user_id')
+    if not user_id:
+        flash("You must be logged in to request products.")
+        return redirect(url_for('login'))
     product = query_db("SELECT * FROM products WHERE product_id = ?", (product_id,), one=True)
     # if its gone/deleted by admin
     if not product:
@@ -309,6 +329,9 @@ def request_product(product_id):
 @app.route('/requests')
 def requests_page():
     user_id = session.get('user_id')
+    if not user_id:
+        flash("You must be logged in to see requests.")
+        return redirect(url_for('login'))
     offers = query_db("SELECT offers.*, products.product_name, products.image_url, users.username AS buyer_username FROM offers INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users ON offers.byer_key = users.user_id WHERE offers.seller_key = ? AND offers.status = 'pending' ORDER BY offers.date_sent DESC", (user_id,))
     locations = query_db("SELECT * FROM locations ORDER BY location_name")
     return render_template("requests_signed_in.html", offers=offers, locations=locations)
@@ -316,6 +339,9 @@ def requests_page():
 @app.route('/approve_request/<int:offer_id>', methods=['POST'])
 def approve_request(offer_id):
     seller_id = session.get('user_id')
+    if not seller_id:
+        flash("You must be logged in as seller to approve requests.")
+        return redirect(url_for('login'))
     location_id = request.form['meeting_location']
     seller_message = request.form['seller_message']
     meetup_time = request.form['meetup_time']
@@ -339,6 +365,9 @@ def approve_request(offer_id):
 @app.route('/delete_product/<int:product_id>', methods=['POST'])
 def delete_product(product_id):
     user_id = session.get('user_id')
+    if not user_id:
+        flash("You must be logged in to delete products.")
+        return redirect(url_for('login'))
     product = query_db("SELECT * FROM products WHERE product_id = ? AND seller_key = ?", (product_id, user_id), one=True)
     if not product:
         flash("You do not have permission to delete this product.")
@@ -354,6 +383,9 @@ def delete_product(product_id):
 @app.route('/change_product_status/<int:product_id>', methods=['POST'])
 def change_product_status(product_id):
     user_id = session.get('user_id')
+    if not user_id:
+        flash("You must be logged in to update product status.")
+        return redirect(url_for('login'))
     product = query_db("SELECT * FROM products WHERE product_id = ? AND seller_key = ?",(product_id, user_id),one=True)
     if not product:
         flash("You do not have permission to update this product.")
@@ -378,6 +410,7 @@ def change_product_status(product_id):
 def admin_dashboard():
     user_id = session.get('user_id')
     if not user_id:
+        flash("You must be logged in to access the admin page.")
         return redirect(url_for('login'))
     user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,), one=True)
     if not user or user['is_admin'] != 1:
@@ -391,6 +424,9 @@ def admin_dashboard():
 @app.route('/admin/approve_product/<int:product_id>', methods=['POST'])
 def approve_product(product_id):
     user_id = session.get('user_id')
+    if not user_id:
+        flash("You must be logged in to approve products.")
+        return redirect(url_for('login'))
     admin = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,),one=True)
     if not admin or admin['is_admin'] != 1:
         flash("You do not have permission to do this.")
@@ -409,6 +445,9 @@ def approve_product(product_id):
 @app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
 def admin_delete_product(product_id):
     admin_id = session.get('user_id')
+    if not admin_id:
+        flash("You must be logged in to delete products.")
+        return redirect(url_for('login'))
     admin = query_db("SELECT * FROM users WHERE user_id = ?", (admin_id,), one=True)
     if not admin or admin['is_admin'] != 1:
         flash("You do not have permission to do this.")
@@ -432,6 +471,9 @@ def admin_delete_product(product_id):
 @app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 def admin_delete_user(user_id):
     admin_id = session.get('user_id')
+    if not admin_id:
+        flash("You must be logged in to disable/enable users.")
+        return redirect(url_for('login'))
     admin = query_db("SELECT * FROM users WHERE user_id = ?",(admin_id,),one=True)
     if not admin or admin['is_admin'] != 1:
         flash("You do not have permission to do this.")
