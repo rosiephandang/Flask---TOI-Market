@@ -14,6 +14,9 @@
 <body class="w3-container">
 
 <div class="header">
+    <a href="{{ url_for('home_signed_in') }}" class="navbar-logo">
+        <img src="{{ url_for('static', filename='uploads/toi-chibi-logo.png') }}" alt="Tōī Market mascot" class="chibi-logo">
+    </a>
     <h1 class="headerlogo">
         <a href="{{ url_for('home_signed_in') }}">Tōī Market</a>
     </h1>

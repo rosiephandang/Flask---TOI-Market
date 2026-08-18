@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block body %}
 <a href="{{ url_for('home') }}" class="backhome">Back to Home</a>
-    <h1 class="test">sign-up page</h1>
     <!--little popups to tell u how ur signup is going--> 
     {% if msg %}
         <p class="">{{ msg }}</p>
     {% endif %}
     <!-- A form to login with -->
 <form action="/signup" method="post">
+    <h4 class="test-signup">Signup</h4>
     <label for="email">Email</label>
     <input type="text" name="email" placeholder="Enter Email" required>
 
