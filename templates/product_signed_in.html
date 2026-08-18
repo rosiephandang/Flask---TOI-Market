@@ -44,6 +44,8 @@
             <h3>Report this product</h3>
             {% if product['status'] == 'pending' %}
                 <p>This product is awaiting approval. You cannot report it at this time.</p>
+            {% elif product['status'] == 'deleted' %}
+                <p>This product has been deleted and cannot be reported.</p>
             {% elif product['status'] != 'deleted' %}
                 <form action="{{ url_for('report_product', product_id=product['product_id']) }}"method="POST">
                     <textarea name="reason" placeholder="Why are you reporting this product?" required></textarea>

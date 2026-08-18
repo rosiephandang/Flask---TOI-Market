@@ -61,7 +61,6 @@ def home_signed_in():
         ))   
     else:
         products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC")
-        users = query_db("SELECT users.*, users.username AS seller_username FROM users INNER JOIN products ON users.user_id = products.seller_key")  
     return render_template("home_signed_in.html", products=products, search=search)
 
 @app.before_request
@@ -74,9 +73,20 @@ def check_active_user():
             flash("Your account has been disabled by an administrator.")
             return redirect(url_for('login'))
 
+# tells the browser not to cache any pages & frces a fresh server request when navigating back
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 @app.route('/product/<int:product_id>')
 def product(product_id):
     product = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?;", (product_id,), one=True)
+    if not product:
+        flash("Product not found.")
+        return redirect(url_for('home'))
     return render_template("product.html", product=product)
 
 
@@ -148,18 +158,43 @@ def userprofile_signed_in(user_id):
     user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,),one=True)
     if not user:
         flash("User not found.")
-        return redirect(url_for('home_signed_in'))
+        return redirect(url_for('login'))
     if request.method == "POST":
-        new_username = request.form.get('username') 
+        new_username = request.form.get('username')
+        if len(new_username) < 3 or len(new_username) > 20:
+            flash("Username must be between 3 and 20 characters!")
+            return redirect(url_for("userprofile_signed_in", user_id=user_id))
+        elif not re.match(r'^[A-Za-z0-9]+$', new_username):
+            flash("Username must contain only letters and numbers!")
+            return redirect(url_for("userprofile_signed_in", user_id=user_id))
         new_description = request.form.get('description')
+        if len(new_description) > 500:
+            flash("Description must be 500 characters or less!")
+            return redirect(url_for("userprofile_signed_in", user_id=user_id))
+        if new_username == user['username'] and new_description == user['description']:
+            flash("No changes made to profile.")
+            return redirect(url_for("userprofile_signed_in", user_id=user_id))
         db.execute("UPDATE users SET username = ?, description = ? WHERE user_id = ?", (new_username, new_description, user_id))
         db.commit()
         flash("Profile updated!")
         return redirect(url_for("userprofile_signed_in", user_id=user_id))
     # urm products this user has liked
-    liked_products = query_db("SELECT products.*, users.username AS seller_username, product_likes.date_liked FROM product_likes INNER JOIN products ON product_likes.product_id = products.product_id INNER JOIN users ON products.seller_key = users.user_id  WHERE product_likes.user_id = ? ORDER BY product_likes.date_liked DESC", (user_id,))
+    liked_products = query_db("SELECT products.*, users.username " \
+    "AS seller_username, product_likes.date_liked " \
+    "FROM product_likes " \
+    "INNER JOIN products ON product_likes.product_id = products.product_id " \
+    "INNER JOIN users ON products.seller_key = users.user_id  " \
+    "WHERE product_likes.user_id = ? " \
+    "AND products.status != 'deleted' " \
+    "ORDER BY product_likes.date_liked DESC", (user_id,))
     # products this user has sold
-    sold_products = query_db(" SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.seller_key = ? AND products.status != 'deleted' ORDER BY products.date_posted DESC",(user_id,))
+    sold_products = query_db(" SELECT products.*, users.username " \
+    "AS seller_username " \
+    "FROM products " \
+    "INNER JOIN users ON products.seller_key = users.user_id " \
+    "WHERE products.seller_key = ? " \
+    "AND products.status != 'deleted' " \
+    "ORDER BY products.date_posted DESC",(user_id,))
     return render_template("userprofile_signed_in.html", user=user, liked_products=liked_products, sold_products=sold_products)
 
 #signup & login pageeee
@@ -177,6 +212,10 @@ def signup():
             msg = 'Invalid email address!'
         elif "@burnside.school.nz" not in email:
             msg = 'You must have a Burnside High School email to use TOI Market!'
+        elif not re.match(r'^[A-Za-z0-9]+$', email.split('@')[0]):
+            msg = 'Email must contain only letters and numbers before the @!'
+        elif len(username) < 3 or len(username) > 20:
+            msg = 'Username must be between 3 and 20 characters!'
         elif not re.match(r'^[A-Za-z0-9]+$', username):
             msg = 'Username must contain only letters and numbers!'
         else:
@@ -249,6 +288,15 @@ def like_product(product_id):
     if not user_id:
         flash("You must be logged in to like products.")
         return redirect(url_for('login'))
+        # Get the product first
+    product = query_db(
+        "SELECT * FROM products WHERE product_id = ?",(product_id,),one=True)
+    if not product:
+        flash("Product not found.")
+        return redirect(url_for('home_signed_in'))
+    if product['status'] == 'deleted':
+        flash("This product has been deleted and cannot be liked/unliked.")
+        return redirect(url_for('product_signed_in', product_id=product_id))
     alr_liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
     db = get_db()
     if alr_liked:
@@ -271,10 +319,31 @@ def add_product():
         return redirect(url_for('login'))
     if request.method == 'POST':
         product_name = request.form['product_name']
+        if len(product_name) < 3 or len(product_name) > 20:
+            flash("Product name must be between 3 and 20 characters!")
+            return redirect(url_for('add_product'))
         description = request.form['description']
+        if len(description) > 100 or len(description) < 10:
+            flash("Description must be between 10 and 100 characters!")
+            return redirect(url_for('add_product'))
         price = request.form['price']
+        if not re.match(r'^\d+(\.\d{1,2})?$', price):
+            flash("Price must be a valid number with up to 2 decimal places!")
+            return redirect(url_for('add_product'))
+        if float(price) <= 0:
+            flash("Price must be greater than 0!")
+            return redirect(url_for('add_product'))
         hazards = request.form['health_hazards']
+        if len(hazards) > 100:
+            flash("Health hazards must be no more than 100 characters!")
+            return redirect(url_for('add_product'))
         image = request.files['image']
+        if image.filename == '':
+            flash("Please upload an image for the product.")
+            return redirect(url_for('add_product'))
+        if image and not image.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            flash("Invalid image format. Please upload a PNG, JPG, JPEG, or GIF file.")
+            return redirect(url_for('add_product'))
         if not product_name or not description or not price or not image:
             flash("Please fill out all required fields.")
             return redirect(url_for('add_product'))
@@ -344,7 +413,13 @@ def approve_request(offer_id):
         return redirect(url_for('login'))
     location_id = request.form['meeting_location']
     seller_message = request.form['seller_message']
+    if len(seller_message) > 200 or len(seller_message) < 10:
+        flash("Seller message must be between 10 and 200 characters.")
+        return redirect(url_for('requests_page'))
     meetup_time = request.form['meetup_time']
+    if meetup_time < date.today().isoformat():
+        flash("Meetup time cannot be in the past.")
+        return redirect(url_for('requests_page'))
     db = get_db()
     # find the offer make sure it belongs to this seller
     offer = query_db("SELECT * FROM offers WHERE offer_id = ? AND seller_key = ? AND status = 'pending'", (offer_id, seller_id), one=True)
@@ -493,7 +568,6 @@ def admin_delete_user(user_id):
         db.execute("UPDATE users SET is_active = 1 WHERE user_id = ?",(user_id,))
         flash(f"{user['username']}'s account has been enabled.")
     db.commit()
-    flash("User account disabled.")
     return redirect(url_for('admin_dashboard'))
 
 # users reporting products route
@@ -508,6 +582,9 @@ def report_product(product_id):
         flash("Product not found.")
         return redirect(url_for('home_signed_in'))
     reason = request.form.get('reason', '').strip()
+    if len(reason) > 100 or len(reason) < 10:
+        flash("Reason must be between 10 and 100 characters.")
+        return redirect(url_for('product_signed_in', product_id=product_id))
     if not reason:
         flash("Please provide a reason for the report.")
         return redirect(url_for('product_signed_in', product_id=product_id))
