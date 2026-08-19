@@ -1,5 +1,14 @@
 import sqlite3
-from flask import Flask, g, render_template, request, flash, redirect, url_for, session
+from flask import (
+    Flask, 
+    g, 
+    render_template, 
+    request, 
+    flash, 
+    redirect, 
+    url_for, 
+    session
+)
 from werkzeug.security import check_password_hash, generate_password_hash 
 import re
 from datetime import date
@@ -15,187 +24,463 @@ def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = sqlite3.Row  # allows dict-style access
-    return g.db
 
+    return g.db
 
 @app.teardown_appcontext
 def close_connection(exception):
     db = g.pop('db', None)
+
     if db is not None:
         db.close()
-
 
 def query_db(query, args=(), one=False):
     cur = get_db().execute(query, args)
     results = cur.fetchall()
     cur.close()
+
     return (results[0] if results else None) if one else results
 
-
 # routes/pages 
-
 @app.route('/')
 def home():
+    #search bar
     search = request.args.get('search', '').strip()
+    
     if search:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC", (
-            '%' + search + '%',
-            '%' + search + '%',
-            '%' + search + '%'
-        ))   
+        products = query_db("""
+            SELECT products.*, users.username AS seller_username 
+            FROM products 
+            INNER JOIN users 
+                ON products.seller_key = users.user_id  
+            WHERE (
+                products.product_name LIKE ? 
+                OR products.description LIKE ?  
+                OR users.username LIKE ?
+            ) 
+            AND products.status IN ('available', 'sold') 
+            AND users.is_active = 1 
+            ORDER BY products.date_posted DESC
+            """, 
+            (
+                '%' + search + '%', # search products
+                '%' + search + '%', # search sellers
+                '%' + search + '%' # search descriptions
+            )
+        )   
     else:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC")
-    return render_template("home.html", products=products, search=search)
+        products = query_db("""
+            SELECT products.*, users.username AS seller_username 
+            FROM products 
+            INNER JOIN users 
+                ON products.seller_key = users.user_id 
+            WHERE products.status IN ('available', 'sold') 
+            AND users.is_active = 1 
+            ORDER BY products.date_posted DESC
+            """
+        )
 
+    return render_template(
+        "home.html", 
+        products=products, 
+        search=search
+    )
+
+# signed in home page
 @app.route('/signed_in')
 def home_signed_in():
     search = request.args.get('search', '').strip()
+
+    # url error prevention
     if 'user_id' not in session:
         flash("You must be logged in to view this page.")
         return redirect(url_for('login'))
+    
+    # search bar 2.0
     if search:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE (products.product_name LIKE ? OR products.description LIKE ?  OR users.username LIKE ?) AND products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC", (
-            '%' + search + '%',
-            '%' + search + '%',
-            '%' + search + '%'
-        ))   
+        products = query_db("""
+            SELECT products.*, users.username AS seller_username 
+            FROM products 
+            INNER JOIN users 
+                ON products.seller_key = users.user_id 
+            WHERE (
+                products.product_name LIKE ? 
+                OR products.description LIKE ?  
+                OR users.username LIKE ?
+                ) 
+                AND products.status IN ('available', 'sold') 
+                AND users.is_active = 1 
+                ORDER BY products.date_posted DESC
+            """, 
+            (
+                '%' + search + '%',
+                '%' + search + '%',
+                '%' + search + '%'
+            )
+        )   
     else:
-        products = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.status IN ('available', 'sold') AND users.is_active = 1 ORDER BY products.date_posted DESC")
-    return render_template("home_signed_in.html", products=products, search=search)
+        products = query_db("""
+            SELECT products.*, users.username AS seller_username 
+            FROM products 
+            INNER JOIN users 
+                ON products.seller_key = users.user_id 
+            WHERE products.status IN ('available', 'sold') 
+            AND users.is_active = 1 
+            ORDER BY products.date_posted DESC
+            """
+        )
 
+    return render_template(
+        "home_signed_in.html", 
+        products=products, 
+        search=search
+    )
+
+# for accounts that have been disabled, soo if they refresh while signed in/try to log in theyre redirected & prevented from doing so
 @app.before_request
 def check_active_user():
     user_id = session.get('user_id')
+
     if user_id:
-        user = query_db("SELECT is_active FROM users WHERE user_id = ?",(user_id,), one=True)
+        user = query_db(
+            "SELECT is_active FROM users WHERE user_id = ?",
+            (user_id,), 
+            one=True
+        )
+        
         if not user or user['is_active'] != 1:
             session.clear()
             flash("Your account has been disabled by an administrator.")
+
             return redirect(url_for('login'))
 
 # tells the browser not to cache any pages & frces a fresh server request when navigating back
 @app.after_request
 def add_no_cache_headers(response):
-    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0"
+    )
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
+
     return response
 
+# product page
 @app.route('/product/<int:product_id>')
 def product(product_id):
-    product = query_db("SELECT products.*, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?;", (product_id,), one=True)
+    product = query_db("""
+        SELECT products.*, users.username AS seller_username 
+        FROM products 
+        INNER JOIN users 
+            ON products.seller_key = users.user_id 
+        WHERE products.product_id = ?;
+        """, 
+        (product_id,),
+        one=True
+    )
+
     if not product:
         flash("Product not found.")
         return redirect(url_for('home'))
-    return render_template("product.html", product=product)
+    
+    return render_template(
+        "product.html", 
+        product=product
+    )
 
-
-@app.route('/sellerprofile/<int:user_id>')
-def sellerprofile(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("sellerprofile.html", user=user)
-
-
+# map page
 @app.route('/meeting/<int:location_id>')
 def meeting(location_id):
-    location = query_db("SELECT * FROM locations WHERE location_id = ?", (location_id,), one=True)
-    return render_template("meeting.html", location=location)
+    location = query_db(
+        "SELECT * FROM locations WHERE location_id = ?", 
+        (location_id,),
+        one=True
+    )
 
+    return render_template(
+        "meeting.html", 
+        location=location
+    )
+
+# about us info page
 @app.route('/about_us/<int:user_id>')
 def about_us(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
-    return render_template("about_us.html", user=user)
+    user = query_db(
+        "SELECT * FROM users WHERE user_id = ?", 
+        (user_id,), 
+        one=True
+    )
 
-#signed in pages
+    return render_template(
+        "about_us.html", 
+        user=user
+    )
+
+# about us info signed in page
 @app.route('/about_us_signed_in/<int:user_id>')
 def about_us_signed_in(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    user = query_db(
+        "SELECT * FROM users WHERE user_id = ?", 
+        (user_id,), 
+        one=True
+    )
+
     if not user:
         flash("User not found.")
         return redirect(url_for('home_signed_in'))
+    
     return render_template("about_us_signed_in.html", user=user)
 
+# map signed in page
 @app.route('/meeting_signed_in')
 def meeting_signed_in():
-    locations = query_db("SELECT * FROM locations ORDER BY location_name")
+    locations = query_db(
+        "SELECT * FROM locations ORDER BY location_name"
+    )
     user_id = session.get('user_id')
+
     if not user_id:
         flash("You must be logged in to view meetings.")
         return redirect(url_for('login'))
-    return render_template("meeting_signed_in.html", locations=locations)
+    
+    return render_template(
+        "meeting_signed_in.html", 
+        locations=locations
+    )
 
+# product signed in page (comes with perks/differences)
 @app.route('/product_signed_in/<int:product_id>')
 def product_signed_in(product_id):
-    product = query_db("SELECT products.*, users.user_id AS seller_key, users.username AS seller_username FROM products INNER JOIN users ON products.seller_key = users.user_id WHERE products.product_id = ?", (product_id,), one=True)
+    product = query_db("""
+        SELECT products.*, users.user_id AS seller_key, 
+            users.username AS seller_username 
+        FROM products 
+        INNER JOIN users 
+            ON products.seller_key = users.user_id 
+        WHERE products.product_id = ?
+        """, 
+        (product_id,), 
+        one=True
+    )
+
+    # if cant find product/product no longer exists in db
     if not product:
         flash("Product not found.")
         return redirect(url_for('home_signed_in'))
+    
     user_id = session.get('user_id')
-    liked = query_db("SELECT * FROM product_likes WHERE product_id = ? AND user_id = ?", (product_id, user_id), one=True)
-    return render_template("product_signed_in.html",product=product, liked=liked)
+    liked = query_db("""
+        SELECT * 
+        FROM product_likes 
+        WHERE product_id = ? 
+        AND user_id = ?
+        """, 
+        (product_id, user_id), 
+        one=True
+    )
 
+    return render_template(
+        "product_signed_in.html",
+        product=product, 
+        liked=liked
+    )
+
+# user notifications page
 @app.route('/notifications_signed_in/<int:user_id>')
 def notifications_signed_in(user_id):
-    if 'user_id' not in session or session['user_id'] != user_id:
+    # only signed in users can access notification page
+    if (
+        'user_id' not in session 
+        or session['user_id'] != user_id
+    ):
         flash("You must be logged in to view notifications.")
         return redirect(url_for('login'))
-    notifications = query_db("SELECT alerts.*, offers.offer_id,offers.offer_price, offers.status AS offer_status, offers.seller_key, offers.byer_key, offers.seller_message, products.product_name, seller.username AS seller_username, meetups.meetup_id,meetups.meetup_time, meetups.location_key, locations.location_name FROM alerts INNER JOIN offers ON alerts.offer_key = offers.offer_id INNER JOIN products ON offers.product_key = products.product_id INNER JOIN users AS seller ON offers.seller_key = seller.user_id  LEFT JOIN meetups ON offers.offer_id = meetups.offer_key LEFT JOIN locations ON meetups.location_key = locations.location_id WHERE alerts.user_key = ? ORDER BY alerts.date_created DESC, alerts.alert_id DESC", (user_id,))
-    admin_notifications = query_db("SELECT admin_notifications.*,products.product_name FROM admin_notifications LEFT JOIN products ON admin_notifications.product_id = products.product_id WHERE admin_notifications.user_id = ? ORDER BY admin_notifications.date_created DESC, admin_notifications.notification_id DESC",(user_id,))
-    return render_template("notifications_signed_in.html",notifications=notifications, user_id=user_id, admin_notifications=admin_notifications)
+    
+    # get notifications from alerts page
+    notifications = query_db("""
+        SELECT alerts.*, 
+            offers.offer_id,
+            offers.offer_price, 
+            offers.status AS offer_status, 
+            offers.seller_key, 
+            offers.byer_key, 
+            offers.seller_message, 
+            products.product_name, 
+            seller.username AS seller_username, 
+            meetups.meetup_id,
+            meetups.meetup_time, 
+            meetups.location_key, 
+            locations.location_name 
+        FROM alerts 
+        INNER JOIN offers 
+            ON alerts.offer_key = offers.offer_id 
+        INNER JOIN products 
+            ON offers.product_key = products.product_id 
+        INNER JOIN users AS seller 
+            ON offers.seller_key = seller.user_id  
+        LEFT JOIN meetups 
+            ON offers.offer_id = meetups.offer_key 
+        LEFT JOIN locations 
+            ON meetups.location_key = locations.location_id 
+        WHERE alerts.user_key = ? 
+        ORDER BY alerts.date_created DESC, alerts.alert_id DESC
+        """, 
+        (user_id,)
+    )
+    # get separate admin notifications
+    admin_notifications = query_db("""
+        SELECT admin_notifications.*, 
+                products.product_name 
+        FROM admin_notifications 
+        LEFT JOIN products 
+            ON admin_notifications.product_id = products.product_id 
+        WHERE admin_notifications.user_id = ? 
+        ORDER BY admin_notifications.date_created DESC, 
+                admin_notifications.notification_id DESC
+        """,
+        (user_id,)
+    )
 
+    return render_template(
+        "notifications_signed_in.html",
+        notifications=notifications, 
+        user_id=user_id, 
+        admin_notifications=admin_notifications
+    )
+
+# seller profile (accessed from product page) page
 @app.route('/seller_profile_signed_in/<int:user_id>')
 def seller_profile_signed_in(user_id):
-    user = query_db("SELECT * FROM users WHERE user_id = ?", (user_id,), one=True)
+    user = query_db(
+        "SELECT * FROM users WHERE user_id = ?", 
+        (user_id,), 
+        one=True
+    )
+
     if not user:
         flash("Seller not found.")
         return redirect(url_for('home_signed_in'))
-    products = query_db("SELECT * FROM products WHERE seller_key = ? AND status != 'deleted' ORDER BY date_posted DESC", (user_id,))
-    return render_template("seller_profile_signed_in.html", user=user, products=products)
+    
+    products = query_db("""
+        SELECT * FROM products 
+        WHERE seller_key = ? 
+        AND status != 'deleted' 
+        ORDER BY date_posted DESC
+        """, 
+        (user_id,)
+    )
+
+    return render_template(
+        "seller_profile_signed_in.html", 
+        user=user, 
+        products=products
+    )
 
 @app.route('/userprofile_signed_in/<int:user_id>', methods=["GET","POST"])
 def userprofile_signed_in(user_id):
     db = get_db()
-    user = query_db("SELECT * FROM users WHERE user_id = ?",(user_id,),one=True)
+
+    user = query_db(
+        "SELECT * FROM users WHERE user_id = ?",
+        (user_id,),
+        one=True
+    )
+
     if not user:
         flash("User not found.")
         return redirect(url_for('login'))
+    
     if request.method == "POST":
         new_username = request.form.get('username')
+
         if len(new_username) < 3 or len(new_username) > 20:
             flash("Username must be between 3 and 20 characters!")
-            return redirect(url_for("userprofile_signed_in", user_id=user_id))
+            return redirect(
+                url_for(
+                    "userprofile_signed_in", 
+                    user_id=user_id
+                )
+            )
         elif not re.match(r'^[A-Za-z0-9]+$', new_username):
             flash("Username must contain only letters and numbers!")
-            return redirect(url_for("userprofile_signed_in", user_id=user_id))
+            return redirect(
+                url_for(
+                    "userprofile_signed_in", 
+                    user_id=user_id
+                )
+            )
         new_description = request.form.get('description')
         if len(new_description) > 500:
             flash("Description must be 500 characters or less!")
-            return redirect(url_for("userprofile_signed_in", user_id=user_id))
+            return redirect(
+                url_for(
+                    "userprofile_signed_in", 
+                    user_id=user_id
+                )
+            )
         if new_username == user['username'] and new_description == user['description']:
             flash("No changes made to profile.")
-            return redirect(url_for("userprofile_signed_in", user_id=user_id))
-        db.execute("UPDATE users SET username = ?, description = ? WHERE user_id = ?", (new_username, new_description, user_id))
+            return redirect(
+                url_for(
+                    "userprofile_signed_in", 
+                    user_id=user_id
+                )
+            )
+        db.execute("""
+            UPDATE users 
+            SET username = ?, description = ? 
+            WHERE user_id = ?
+            """, 
+            (
+                new_username, 
+                new_description, 
+                user_id
+            )
+        )
         db.commit()
         flash("Profile updated!")
-        return redirect(url_for("userprofile_signed_in", user_id=user_id))
+
+        return redirect(
+            url_for(
+                "userprofile_signed_in", 
+                user_id=user_id
+            )
+        )
+        
     # urm products this user has liked
-    liked_products = query_db("SELECT products.*, users.username " \
-    "AS seller_username, product_likes.date_liked " \
-    "FROM product_likes " \
-    "INNER JOIN products ON product_likes.product_id = products.product_id " \
-    "INNER JOIN users ON products.seller_key = users.user_id  " \
-    "WHERE product_likes.user_id = ? " \
-    "AND products.status != 'deleted' " \
-    "ORDER BY product_likes.date_liked DESC", (user_id,))
+    liked_products = query_db("""
+        SELECT products.*,
+            users.username AS seller_username, 
+            product_likes.date_liked 
+        FROM product_likes
+        INNER JOIN products 
+            ON product_likes.product_id = products.product_id 
+        INNER JOIN users 
+            ON products.seller_key = users.user_id
+        WHERE product_likes.user_id = ?
+        AND products.status != 'deleted'
+        ORDER BY product_likes.date_liked DESC
+        """, 
+        (user_id,)
+    )
     # products this user has sold
-    sold_products = query_db(" SELECT products.*, users.username " \
-    "AS seller_username " \
-    "FROM products " \
-    "INNER JOIN users ON products.seller_key = users.user_id " \
-    "WHERE products.seller_key = ? " \
-    "AND products.status != 'deleted' " \
-    "ORDER BY products.date_posted DESC",(user_id,))
-    return render_template("userprofile_signed_in.html", user=user, liked_products=liked_products, sold_products=sold_products)
+    sold_products = query_db(""" 
+        SELECT products.*, users.username AS seller_username 
+        FROM products
+        INNER JOIN users 
+            ON products.seller_key = users.user_id
+        WHERE products.seller_key = ? 
+        AND products.status != 'deleted'
+        ORDER BY products.date_posted DESC
+        """,
+        (user_id,)
+    )
+    return render_template(
+        "userprofile_signed_in.html", 
+        user=user, 
+        liked_products=liked_products, 
+        sold_products=sold_products
+    )
 
 #signup & login pageeee
 @app.route('/signup', methods=['GET', 'POST'])
