@@ -27,11 +27,11 @@
                 <div class="changinguserdescription">
                     <span></span><input type="text" name="description"  placeholder="Edit user description" required>
                 </div>
-                <button type="submit" class="profile_change">Update</button>
+                <button type="submit" class="textbox">Update</button>
             </form>
         </div>
     <div class="userdate">
-            <p>Joined: {{ user['date_joined'] }}</p>
+            <br><p><strong>Joined: </strong>{{ user['date_joined'] }}</p>
     </div>
     <div class="products_liked_list">
         <h2>Products You've Liked</h2>
@@ -53,7 +53,7 @@
         </div>
     </div>
     <div class="products_sold_list">
-        <h2>Products You've Sold</h2>
+        <h2>Products You're Selling</h2>
         <div class="sold_products_row">
             {% for product in sold_products %}
                 <a href="{{ url_for('product_signed_in', product_id=product['product_id']) }}" class="sold-product">

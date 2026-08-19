@@ -26,11 +26,11 @@
                 <form action="{{ url_for('approve_request', offer_id=offer['offer_id']) }}" method="POST" class="approve-form">
                     <h3>Approve this offer</h3>
                     <label>Message to buyer:</label>
-                    <textarea name="seller_message" placeholder="Message for the buyer..." required></textarea>
+                    <textarea class="request-message" name="seller_message" placeholder="Message for the buyer..." required></textarea>
                     <label for="meeting_location">
                         Meeting location:
                     </label>
-                    <select name="meeting_location" required>
+                    <select class="select-for-request" name="meeting_location" required>
                         <option value="">Select a location</option>
                         {% for location in locations %}
                             <option value="{{ location['location_id'] }}">{{ location['location_name'] }}
@@ -38,7 +38,7 @@
                         {% endfor %}
                     </select>          
                     <label>Meet-up date and time:</label>
-                    <input type="datetime-local" name="meetup_time" required>
+                    <input class="select-for-request" type="datetime-local" name="meetup_time" required>
                     <button type="submit" class="approve-button">Approve Offer
                     </button>
                 </form>

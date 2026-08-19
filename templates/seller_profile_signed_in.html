@@ -2,13 +2,13 @@
 {% block body %}
     <a href="{{ url_for('home_signed_in') }}" class="backhome">Back to Home</a>
 <div class="seller-profile">
-    <h1>{{ user['username'] }}</h1>
+    <h1><strong>Seller username: </strong>{{ user['username'] }}</h1>
     {% if user['description'] %}
-        <p>{{ user['description'] }}</p>
+        <p><strong>Seller description:</strong> {{ user['description'] }}</p>
     {% else %}
         <p>No description provided.</p>
     {% endif %}
-    <h2>Products for Sale</h2>
+    <h2><strong>Products for Sale</strong></h2>
     <div class="seller-products">
         {% for product in products %}
             <a href="{{ url_for('product_signed_in', product_id=product['product_id']) }}"

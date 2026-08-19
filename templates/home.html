@@ -1,12 +1,14 @@
 {% extends "layout.html" %}
 
 {% block body %}
-
-<div class="search bar">
-    <form action="{{ url_for('home') }}" method="GET">
-        <input type="text" name="search" placeholder="Search products..." value="{{ search }}">
-        <button type="submit">Search</button>
-    </form>
+<div class="homepage-two">
+    <h3 class="products-homepage">Products</h3>
+    <div class="search bar">
+        <form action="{{ url_for('home') }}" method="GET">
+            <input type="text" name="search" placeholder="Search products..." value="{{ search }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
 </div>
 {% if not products %}
     <p>No products found.</p>

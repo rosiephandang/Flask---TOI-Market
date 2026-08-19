@@ -8,9 +8,9 @@
             <div class="notification admin-notification">
                 <h3>{{ notification['message'] }}</h3>
                 {% if notification['product_name'] %}
-                    <p>Product: {{ notification['product_name'] }}</p>
+                    <p><strong>Product:</strong> {{ notification['product_name'] }}</p>
                 {% endif %}
-                <p>Date:{{ notification['date_created'] }}</p>
+                <p><strong>Date:</strong> {{ notification['date_created'] }}</p>
             </div>
         {% endfor %}
         {% if not admin_notifications %}
@@ -21,10 +21,10 @@
     {% for notification in notifications %}
         <div class="notification">
             <h3>{{ notification['message'] }}</h3>
-            <p>Product: {{ notification['product_name'] }}</p>
-            <p>Seller: {{ notification['seller_username'] }}</p>
-            <p>Offer: ${{ notification['offer_price'] }}</p>
-            <p>Date: {{ notification['date_created'] }}</p>
+            <p><strong>Product:</strong> {{ notification['product_name'] }}</p>
+            <p><strong>Seller:</strong> {{ notification['seller_username'] }}</p>
+            <p><strong>Offer:</strong> ${{ notification['offer_price'] }}</p>
+            <p><strong>Date:</strong> {{ notification['date_created'] }}</p>
             {% if notification['seller_key'] == session['user_id'] %}
                 {% if notification['offer_status'] == 'pending' %}
                     <a href="{{ url_for('requests_page') }}" class="notification-button">View Request</a>
@@ -35,13 +35,13 @@
                 {% if notification['offer_status'] == 'approved' %}
                     <h3>Offer Approved!</h3>
                     {% if notification['seller_message'] %}
-                        <p>Message from seller:</p>
+                        <p><strong>Message from seller:</strong></p>
                         <p>{{ notification['seller_message'] }}</p>
                     {% endif %}
                     {% if notification['meetup_id'] %}
                         <h3>Meet-up Details</h3>
-                        <p>Location: {{ notification['location_name'] }}</p>
-                        <p>Date & Time: {{ notification['meetup_time'] }}</p>
+                        <p><strong>Location:</strong> {{ notification['location_name'] }}</p>
+                        <p><strong>Date & Time:</strong> {{ notification['meetup_time'] }}</p>
                         {% if notification['location_key'] %}
                             <a href="{{ url_for('meeting_signed_in',location_id=notification['location_key']) }}" class="notification-button">View Location on Map</a>
                         {% endif %}

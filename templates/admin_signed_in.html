@@ -11,14 +11,14 @@
             <img class="admin-product-image" src="{{ product['image_url'] }}" alt="{{ product['product_name'] }}">
             <div>
                 <h3><a href="{{ url_for('product_signed_in', product_id=product['product_id']) }}">{{ product['product_name'] }}</a></h3>
-                <p><a href="{{ url_for('seller_profile_signed_in', user_id=product['seller_key']) }}">Seller: {{ product['seller_username'] }}</a></p>
-                <p>${{ product['price_suggested'] }}</p>
-                <p>{{ product['description'] }}</p>
+                <p><strong>Seller:</strong> <a href="{{ url_for('seller_profile_signed_in', user_id=product['seller_key']) }}">{{ product['seller_username'] }}</a></p>
+                <p><strong>Price: </strong>${{ product['price_suggested'] }}</p>
+                <p><strong>Description: </strong>{{ product['description'] }}</p>
                 <form action="{{ url_for('approve_product', product_id=product['product_id']) }}" method="POST">
-                    <button type="submit">Approve</button>
+                    <button class="admin-button" type="submit">Approve</button>
                 </form>
                 <form action="{{ url_for('admin_delete_product', product_id=product['product_id']) }}" method="POST">
-                    <button type="submit">Delete</button>
+                    <button class="admin-button" type="submit">Delete</button>
                 </form>
             </div>
         </div>
@@ -33,12 +33,12 @@
         <div class="admin-report">
             <img src="{{ report['image_url'] }}" alt="{{ report['product_name'] }}">
             <div>
-                <h3>{{ report['product_name'] }}</h3>
-                <p>Reported by: <a href="{{ url_for('userprofile_signed_in', user_id=report['user_id']) }}">{{ report['reporter_username'] }}</a></p>
-                <p>Reason: {{ report['reason'] }}</p>
-                <p>Date: {{ report['date_reported'] }}</p>
+                <h3><a href="{{ url_for('product_signed_in', product_id=report['product_id']) }}">{{ report['product_name'] }}</a></h3>
+                <p><strong>Reported by:</strong> <a href="{{ url_for('userprofile_signed_in', user_id=report['user_id']) }}">{{ report['reporter_username'] }}</a></p>
+                <p><strong>Reason:</strong> {{ report['reason'] }}</p>
+                <p><strong>Date:</strong> {{ report['date_reported'] }}</p>
                 <form action="{{ url_for('admin_delete_product', product_id=report['product_id']) }}" method="POST">
-                    <button type="submit">Delete Product</button>
+                    <button class="admin-button" type="submit">Delete Product</button>
                 </form>
             </div>
         </div>
@@ -51,13 +51,13 @@
         <h2>Users</h2>
         {% for user in users %}
         <div class="admin-user">
-            <p><a href="{{ url_for('userprofile_signed_in', user_id=user['user_id']) }}">{{ user['username'] }}:{{ user['email'] }}</a></p>
+            <p><a href="{{ url_for('userprofile_signed_in', user_id=user['user_id']) }}">{{ user['username'] }}: {{ user['email'] }}</a></p>
             {% if user['is_admin'] != 1 %}
                 <form action="{{ url_for('admin_delete_user', user_id=user['user_id']) }}" method="POST">
                     {% if user['is_active'] == 1 %}
-                        <button type="submit">Disable User</button>
+                        <button class="admin-button" type="submit">Disable User</button>
                     {% else %}
-                        <button type="submit">Enable User</button>
+                        <button class="admin-button" type="submit">Enable User</button>
                     {% endif %}
                 </form>
                 {% if user['is_active'] == 0 %}

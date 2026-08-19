@@ -24,7 +24,7 @@
 }
 
 body.w3-container {
-    padding: 0 !important;
+    padding: 0;
     background-color: var(--cream);
     color: var(--forest);
     font-family: "Trebuchet MS", Arial, sans-serif;
@@ -164,6 +164,7 @@ li.dropdown {
 
 .linkpiority{
   font-size: 10px;
+  text-decoration: none;
 }
 
 
@@ -293,6 +294,7 @@ li.dropdown {
     margin-top: 10px;
     margin-bottom: 15px;
     border: 1px solid #999;
+    border-radius: 12px;
 }
 
 
@@ -415,10 +417,11 @@ li.dropdown {
     display: inline-block;
     margin: 25px 0 0 40px;
     padding: 10px 20px;
-    background-color: #51c4d3;
+    background-color: #91abb6;
     color: white;
     text-decoration: none;
     font-size: 15px;
+    border-radius: 12px;
 }
 
 .backhome:hover {
@@ -432,14 +435,14 @@ li.dropdown {
 .add_product_button a {
     display: inline-block;
     padding: 12px 20px;
-    background-color: #51c4d3;
+    background-color: #5f7d87;
     color: white;
     text-decoration: none;
     font-size: 16px;
 }
 
 .add_product_button a:hover {
-    background-color: #108b96;
+    opacity: 0.75;
 }
 
 .addproduct {
@@ -458,12 +461,15 @@ li.dropdown {
     margin-bottom: 8px;
 }
 
-.addproduct input,
-.addproduct textarea {
+.addproduct input, .addproduct textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #999;
+    border: 1px solid #91abb6;
     box-sizing: border-box;
+}
+
+.addproduct input, textarea{
+    border-radius: 12px;
 }
 
 .addproduct textarea {
@@ -475,7 +481,7 @@ li.dropdown {
     margin-top: 25px;
     width: 100%;
     padding: 15px;
-    background-color: #51c4d3;
+    background-color: #5f7d87;
     color: white;
     border: none;
     cursor: pointer;
@@ -483,7 +489,12 @@ li.dropdown {
 }
 
 .addproduct button:hover {
-    background-color: #108b96;
+    opacity: 0.75;
+}
+
+.add-a-product{
+    margin-left: 175px;
+    margin-top: 50px;
 }
 
 .seller-products {
@@ -595,8 +606,8 @@ li.dropdown {
 }
 
 .admin-report img {
-    width: 200px !important;
-    height: 200px !important;
+    width: 200px;
+    height: 200px;
     min-width: 200px;
     object-fit: cover;
     display: block;
@@ -639,14 +650,18 @@ form[action="/login"],form[action="/signup"] {
 }
 
 .search.bar {
-    margin: 35px auto;
-    display: flex;
-    justify-content: center;
+    margin: 30px auto;
+    margin-top: 100px;
+    margin-bottom: 0;
+    margin-right: -20px;
+    min-width: 1000px;
+    /*display: flex;
+    justify-content: right;*/
 }
 
 .search.bar form {
     display: flex;
-    width: min(700px, 90%);
+    width: min(1000px, 90%);
     gap: 10px;
     align-items: center;
 }
@@ -662,6 +677,10 @@ form[action="/login"],form[action="/signup"] {
     border-radius: 12px;
 }
 
+.search.bar button:hover{
+    opacity: 0.5;
+}
+
 .test-login, .test-signup {
     font-size: 38px;
     margin-bottom: 15px;
@@ -669,4 +688,296 @@ form[action="/login"],form[action="/signup"] {
 
 .about-us{
     margin: 50px;
+}
+
+.products-homepage{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight:bolder;
+    font-size: 50px;
+    margin-top: 90px;
+    margin-left: 100px;
+}
+
+.homepage-two{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.if-not-product{
+    margin-left: 100px;
+    font-size: 25px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-style: italic;
+}
+
+.w3-card-4 {
+    background-color: #fffdf8;
+    border: 3px solid #23432e;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 5px 7px 0 rgba(35, 67, 46, 0.14);
+    padding-bottom: 15px;
+}
+
+.w3-card-4:hover {
+    box-shadow: 8px 11px 0 rgba(35, 67, 46, 0.4);
+}
+
+.w3-card-4 h2, .w3-card-4 h5 {
+    margin-left: 18px;
+    margin-right: 18px;
+}
+
+.w3-card-4 h2 {
+    margin-top: 15px;
+    font-size: 24px;
+}
+
+.w3-card-4 h5 {
+    color: var(--blue-grey-dark);
+    margin-top: 7px;
+}
+
+.offerinput-message textarea{
+    min-width: 590px;
+}
+
+textarea {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 12px;
+}
+
+button{
+    border-radius: 12px;
+}
+
+textarea.reasonr{
+    min-width: 590px;
+}
+
+.like-button, .report-button{
+    background-color: #111111;
+    color: white;
+    padding: 12px;
+    border: #111111;
+}
+
+.like-button{
+    background-color: #b00020;
+    border: #b00020;
+}
+
+.like-button:hover, .report-button:hover{
+    opacity: 0.75;
+}
+
+.about-section li{
+    font-size: 15px;
+    background-color: #91abb6;
+    margin: 0 10px;
+    padding: 10px;
+    border-radius: 12px;
+    border: #23432e 3px solid;
+    box-shadow: 3px 4px 0 rgba(35, 67, 46, 0.08);
+}
+
+.about-section li:hover{
+    padding-left: 15px;
+    padding-right: 15px;
+    margin: 0 5px;
+}
+
+.about-section ul{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.notifications-page, .requests-page, .admin-page, .addproduct {
+    max-width: 1200px;
+    margin: 35px auto;
+    padding: 35px;
+}
+
+.notification, .buy-request, .admin-section, .addproduct {
+    background-color: var(--mist);
+    border: 3px solid var(--forest);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 22px;
+    box-shadow: 5px 7px 0 rgba(35, 67, 46, 0.12);
+}
+
+.notification-button, .approve-button {
+    margin-top: 20px;
+    background-color: #5f7d87;
+    color: white;
+    padding: 7px;
+    border: #5f7d87 solid 3px;
+    text-decoration: none;
+    border-radius: 8px;
+}
+.notification-button:hover, .approve-button:hover{
+    opacity: 0.75;
+}
+
+.select-for-request{
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.approve-form{
+    display: flex;
+    flex-direction: column;
+}
+
+.approve-form textarea, label, select, input{
+    margin-bottom: 10px;
+}
+
+.request-message{
+    margin-top: 0;
+}
+
+.notification p{
+    margin-bottom: 20px;
+}
+
+.admin-notification {
+    background-color: var(--sage-light);
+}
+
+
+.admin-product, .admin-report, .admin-user {
+    background-color: #fffdf8;
+    border: 2px solid rgba(35, 67, 46, 0.35);
+    border-radius: 16px;
+    padding: 18px;
+    margin-top: 15px;
+    box-shadow: 3px 4px 0 rgba(35, 67, 46, 0.08);
+}
+
+
+.admin-product-image, .admin-report img {
+    border: 2px solid var(--forest);
+    border-radius: 14px;
+}
+
+
+.admin-user {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#map {
+    width: min(1000px, 90%);
+    height: 600px;
+    margin: 30px auto;
+    border: 4px solid var(--forest);
+    border-radius: 22px;
+    box-shadow: 7px 9px 0 rgba(35, 67, 46, 0.14);
+}
+
+.meetup-title {
+    text-align: center;
+    margin-top: 35px;
+    font-size: 32px;
+}
+
+.w3-panel.w3-green {
+    background-color: var(--sage-light);
+    color: var(--forest) ;
+    border: 3px solid var(--forest);
+    border-radius: 15px;
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.seller-products {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    padding: 10px 5px 20px;
+}
+
+.seller-product {
+    flex: 0 0 220px;
+    width: 220px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.seller-product img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+
+.seller-product h3 {
+    margin: 10px 0 5px;
+}
+
+
+.seller-product p {
+    margin: 5px 0;
+}
+
+.userprofilesignedin, .seller-profile {
+    max-width: 1200px;
+    margin: 35px auto;
+    background-color: var(--mist);
+    border: 3px solid var(--forest);
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 7px 9px 0 rgba(35, 67, 46, 0.12);
+}
+
+
+.liked-product, .sold-product, .seller-product {
+    background-color: #fffdf8;
+    border: 2px solid var(--forest);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 4px 5px 0 rgba(35, 67, 46, 0.12);
+    padding-bottom: 12px;
+}
+
+.liked-product:hover, .sold-product:hover, .seller-product:hover {
+    opacity: 0.9;
+}
+
+.liked-product img, .sold-product img, .seller-product img {
+    border-bottom: 2px solid var(--forest);
+}
+
+.liked-product h3, .liked-product p, .sold-product h3, .sold-product p, .seller-product h3, .seller-product p {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.textbox, .usernamechanging input, .changinguserdescription input{
+    border-radius: 8px;
+    padding: 7px;
+}
+
+.admin-button{
+    background-color: #5f7d87;
+    color: white;
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 10px;
+}
+
+.admin-user a{
+    text-decoration: none;
+}
+
+.add_product_button a{
+    border-radius: 12px;
 }
