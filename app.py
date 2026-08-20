@@ -33,14 +33,12 @@ def get_db():
     return g.db
 
 
-
 @app.teardown_appcontext
 def close_connection(exception):
     db = g.pop('db', None)
 
     if db is not None:
         db.close()
-
 
 
 def query_db(query, args=(), one=False):
@@ -51,11 +49,12 @@ def query_db(query, args=(), one=False):
     return (results[0] if results else None) if one else results
 
 
+# ROUTES AND PAGES
 
-# routes/pages 
+# show all avaiable products non-authenticated page
 @app.route("/")
 def home():
-    #search bar
+    # search bar
     search = request.args.get("search", "").strip()
     
     if search:
@@ -101,14 +100,13 @@ def home():
 
 
 
-
 # signed in home page
 @app.route("/signed_in")
 def home_signed_in():
 
     search = request.args.get("search", "").strip()
 
-    # url error prevention
+    # prevents users from accessing if not signed in
     if "user_id" not in session:
         flash("You must be logged in to view this page.")
         return redirect(url_for("login"))
@@ -157,7 +155,7 @@ def home_signed_in():
 
 
 
-# for accounts that have been disabled, soo if they refresh while signed in/try to log in theyre redirected & prevented from doing so
+# for preventing accounts that have been disabled from accessing authenticated pages
 @app.before_request
 def check_active_user():
 
@@ -169,7 +167,7 @@ def check_active_user():
             (user_id,), 
             one=True
         )
-        
+        # if user is disabled
         if not user or user["is_active"] != 1:
             session.clear()
             flash("Your account has been disabled by an administrator.")
@@ -178,7 +176,7 @@ def check_active_user():
 
 
 
-# tells the browser not to cache any pages & frces a fresh server request when navigating back
+# tells the browser not to cache any pages & forces a fresh server request when navigating back
 @app.after_request
 def add_no_cache_headers(response):
     response.headers["Cache-Control"] = (
@@ -191,7 +189,7 @@ def add_no_cache_headers(response):
 
 
 
-# product page
+# singluar product display non-authenticated page
 @app.route("/product/<int:product_id>")
 def product(product_id):
 
@@ -206,7 +204,7 @@ def product(product_id):
         (product_id,),
         one=True
     )
-
+    # if product url is not found
     if not product:
         flash("Product not found.")
         return redirect(url_for("home"))
@@ -218,7 +216,7 @@ def product(product_id):
 
 
 
-# map page
+# map page showing meeting locations non-authenticated 
 @app.route("/meeting/<int:location_id>")
 def meeting(location_id):
 
@@ -235,7 +233,7 @@ def meeting(location_id):
 
 
 
-# about us info page
+# about us info non-authenticated page
 @app.route("/about_us/<int:user_id>")
 def about_us(user_id):
 
@@ -261,7 +259,7 @@ def about_us_signed_in(user_id):
         (user_id,), 
         one=True
     )
-
+    # if not signed in
     if not user:
         flash("User not found.")
         return redirect(url_for("home_signed_in"))
@@ -273,7 +271,7 @@ def about_us_signed_in(user_id):
 
 
 
-# map signed in page
+# map page showing meeting locations signed in
 @app.route("/meeting_signed_in")
 def meeting_signed_in():
 
@@ -282,6 +280,7 @@ def meeting_signed_in():
     )
     user_id = session.get("user_id")
 
+    # if not signed in
     if not user_id:
         flash("You must be logged in to view meetings.")
         return redirect(url_for("login"))
@@ -293,7 +292,7 @@ def meeting_signed_in():
 
 
 
-# product signed in page (comes with perks/differences)
+# product signed in page (comes with perks/differences from non-authenticated page)
 @app.route("/product_signed_in/<int:product_id>")
 def product_signed_in(product_id):
 
@@ -310,12 +309,14 @@ def product_signed_in(product_id):
         one=True
     )
 
-    # if cant find product/product no longer exists in db
+    # if cant find product url/product no longer exists in db
     if not product:
         flash("Product not found.")
         return redirect(url_for("home_signed_in"))
     
     user_id = session.get("user_id")
+
+    # find no. of likes the product has
     liked = query_db(
         """
         SELECT * 
@@ -338,6 +339,7 @@ def product_signed_in(product_id):
 # user notifications page
 @app.route("/notifications_signed_in/<int:user_id>")
 def notifications_signed_in(user_id):
+
     # only signed in users can access notification page
     if (
         "user_id" not in session 
@@ -400,6 +402,8 @@ def notifications_signed_in(user_id):
         admin_notifications=admin_notifications
     )
 
+
+
 # seller profile (accessed from product page) page
 @app.route("/seller_profile_signed_in/<int:user_id>")
 def seller_profile_signed_in(user_id):
@@ -414,6 +418,7 @@ def seller_profile_signed_in(user_id):
         flash("Seller not found.")
         return redirect(url_for("home_signed_in"))
     
+    # display products the seller is selling
     products = query_db(
         """
         SELECT * FROM products 
@@ -431,7 +436,7 @@ def seller_profile_signed_in(user_id):
     )
 
 
-
+# viewing your own user profile 
 @app.route("/userprofile_signed_in/<int:user_id>", methods=["GET","POST"])
 def userprofile_signed_in(user_id):
 
@@ -442,14 +447,16 @@ def userprofile_signed_in(user_id):
         (user_id,),
         one=True
     )
-
+    # prevent anyone not user from access
     if not user:
         flash("User not found.")
         return redirect(url_for("login"))
-    
+
+    # changing username & user description
     if request.method == "POST":
         new_username = request.form.get("username")
 
+        # vachar limits so db doesn't break
         if len(new_username) < 3 or len(new_username) > 20:
             flash("Username must be between 3 and 20 characters!")
             return redirect(
@@ -467,6 +474,8 @@ def userprofile_signed_in(user_id):
                 )
             )
         new_description = request.form.get("description")
+
+        # limit user description characters
         if len(new_description) > 500:
             flash("Description must be 500 characters or less!")
             return redirect(
@@ -475,6 +484,7 @@ def userprofile_signed_in(user_id):
                     user_id=user_id
                 )
             )
+        # if both new username AND new user description are the same as the old versions, don't change db
         if new_username == user["username"] and new_description == user["description"]:
             flash("No changes made to profile.")
             return redirect(
@@ -483,6 +493,7 @@ def userprofile_signed_in(user_id):
                     user_id=user_id
                 )
             )
+        # update new changes to db
         db.execute(
             """
             UPDATE users 
@@ -505,7 +516,7 @@ def userprofile_signed_in(user_id):
             )
         )
         
-    # urm products this user has liked
+    # products the user has liked
     liked_products = query_db(
         """
         SELECT products.*,
@@ -522,7 +533,7 @@ def userprofile_signed_in(user_id):
         """, 
         (user_id,)
     )
-    # products this user has sold
+    # products the user is selling (no deleted products)
     sold_products = query_db(
         """ 
         SELECT products.*, users.username AS seller_username 
@@ -544,7 +555,7 @@ def userprofile_signed_in(user_id):
 
 
 
-#signup & login pageeee
+# signup page
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
 
@@ -554,7 +565,8 @@ def signup():
         email = request.form["email"].strip().lower()
         username = request.form["username"]
         password = request.form["password"]
-        # validation if fields arent filled
+
+        # validation if fields arent filled & some conditions to be fullfilled
         if not email or not username or not password:
             msg = "Please fill out all fields!"
         elif not re.match(
@@ -577,7 +589,7 @@ def signup():
         ):
             msg = "Username must contain only letters and numbers!"
         else:
-            # check if email in database
+            # check if email is already in database
             account = query_db(
                 "SELECT * FROM users WHERE email = ?", 
                 (email,),
@@ -587,6 +599,7 @@ def signup():
             if account:
                 msg = "Account already exists!"
             else:
+                # insert new user into db
                 hashed_password = generate_password_hash(password)
                 db = get_db()
                 today = date.today().isoformat()
@@ -607,8 +620,8 @@ def signup():
                     today
                     )
                 )
-                # cursor = db.execute("UPDATE user SET score = 0 WHERE id = ?", (user_id,))
                 db.commit()
+
                 # log the user in immeadiately after signup by storing ID
                 session["user_id"] = cursor.lastrowid
                 session["is_admin"] = 0
@@ -617,20 +630,25 @@ def signup():
                 return redirect(url_for("home_signed_in"))
             
     return render_template(
-        "signup.html", msg=msg)
+        "signup.html", 
+        msg=msg
+    )
 
 
-
+# login page
 @app.route("/login", methods=["GET","POST"])
 def login():
-    #if the user posts a username and password
+
+    # if the user posts a username and password
     msg = ""
 
     if request.method == "POST":
-        #get the username and password
+
+        # get the username and password
         email = request.form["email"].strip().lower()
         password = request.form["password"]
 
+        # validation if fields arent filled
         if not email or not password:
             msg = "Please fill out all fields!"
         else:
@@ -641,16 +659,19 @@ def login():
                 one=True
             )
             if user:
-                #we got a user!!
+
+                # we got a user!!
                 if user["is_active"] != 1:
                     msg = "This account has been disabled."
-                #check password matches-
+
+                # check password matches-
                 elif check_password_hash(
                     user["password"],
                     password
                 ):
-                    #we are logged in successfully
-                    #Store the username in the session
+                    # we are logged in successfully
+
+                    # Store the username in the session
                     session["user_id"] = user["user_id"]
                     session["is_admin"] = user["is_admin"]
                     flash("Logged in successfully!")
@@ -660,41 +681,46 @@ def login():
                     msg = "Password or email is incorrect."
             else:
                 msg = "Email does not exist."
-    #render this template regardles of get/post
+
+    # render this template regardles of get/post
     return render_template(
         "login.html", 
         msg = msg
     )
 
 
-
+# logout route
 @app.route("/logout")
 def logout():
-    #just clear the username from the session and redirect back to the home page
+
+    # just clear the username from the session and redirect back to the home non-authenticated page
     session.clear()
     flash("Logged out successfully")
     return redirect("/")
 
 
-# like route
+# liking and unliking products route
 @app.route("/like/<int:product_id>", methods=["POST"])
 def like_product(product_id):
     user_id = session.get("user_id")
 
+    # if user is not signed in
     if not user_id:
         flash("You must be logged in to like products.")
         return redirect(url_for("login"))
-        # Get the product first
+    
+    # Get the product first
     product = query_db(
         "SELECT * FROM products WHERE product_id = ?",
         (product_id,),
         one=True
     )
-
+    # if product page not found
     if not product:
         flash("Product not found.")
         return redirect(url_for("home_signed_in"))
     
+    # if product has already been deleted
     if product["status"] == "deleted":
         flash("This product has been deleted and cannot be liked/unliked.")
         return redirect(url_for(
@@ -702,7 +728,7 @@ def like_product(product_id):
             product_id=product_id
             )
         )
-    
+    # checking if user has already liked product
     alr_liked = query_db(
         """
         SELECT * 
@@ -716,8 +742,11 @@ def like_product(product_id):
     )
 
     db = get_db()
-
+    
+    # if user has already liked product
     if alr_liked:
+
+        # remove like row from product_likes table
         db.execute(
             """
             DELETE FROM product_likes 
@@ -727,6 +756,7 @@ def like_product(product_id):
             (product_id, 
              user_id)
         )
+        # -1 from likes column in products table
         db.execute(
             """
             UPDATE products 
@@ -737,8 +767,11 @@ def like_product(product_id):
         )
         flash("You've unliked this product!")
 
+    # if not -
     else:
         today = date.today().isoformat()
+
+        # add new like row into product_likes table
         db.execute(
             """
             INSERT INTO product_likes (
@@ -752,6 +785,7 @@ def like_product(product_id):
              user_id, 
              today)
         )
+        # +1 from likes column in products table
         db.execute(
             """
             UPDATE products 
@@ -777,9 +811,10 @@ def add_product():
         flash("You must be logged in to add a product.")
         return redirect(url_for("login"))
     
+    # filling in details about new product 
     if request.method == "POST":
         product_name = request.form["product_name"]
-
+        # varchar limits
         if len(product_name) < 3 or len(product_name) > 20:
             flash("Product name must be between 3 and 20 characters!")
             return redirect(url_for("add_product"))
@@ -792,6 +827,7 @@ def add_product():
         
         price = request.form["price"]
 
+        # price has to be a valid number
         if not re.match(
             r"^\d+(\.\d{1,2})?$", 
             price
@@ -799,22 +835,26 @@ def add_product():
             flash("Price must be a valid number with up to 2 decimal places!")
             return redirect(url_for("add_product"))
         
+        # price has to be larger then/equal to 0
         if float(price) <= 0:
             flash("Price must be greater than 0!")
             return redirect(url_for("add_product"))
         
         hazards = request.form["health_hazards"]
 
+        # optional, filling in the health hazard field
         if len(hazards) > 100:
             flash("Health hazards must be no more than 100 characters!")
             return redirect(url_for("add_product"))
         
         image = request.files["image"]
 
+        # need to upload image of product
         if image.filename == "":
             flash("Please upload an image for the product.")
             return redirect(url_for("add_product"))
         
+        # ensuring no non-image files are uploaded
         if image and not image.filename.lower().endswith((
             ".png",
             ".jpg",
@@ -829,16 +869,17 @@ def add_product():
             flash("Please fill out all required fields.")
             return redirect(url_for("add_product"))
         
-        # savee image
+        # save image
         filename = image.filename
         image.save("static/uploads/" + filename)
 
-        # automatically filled information
+        # automatically filled information with no user input
         user_id = session["user_id"]
         today = date.today().isoformat()
 
         db = get_db()
 
+        #insert product into db
         db.execute(
             """
             INSERT INTO products (
@@ -878,7 +919,7 @@ def add_product():
 
 
 
-
+# users requesting/offering to buy products route
 @app.route("/request_product/<int:product_id>", methods=["POST"])
 def request_product(product_id):
 
@@ -904,6 +945,7 @@ def request_product(product_id):
 
     seller_id = product["seller_key"]
 
+    # only products that are available can recieve offers
     if product["status"] != "available":
         flash("This product is no longer available for offers.")
         return redirect(url_for(
@@ -911,7 +953,7 @@ def request_product(product_id):
             product_id=product_id
             )
         )
-    # no allow sellers to request their own products
+    # no allowing sellers to request their own products
     if user_id == seller_id:
         flash("You cannot request to buy your own product.")
         return redirect(url_for(
@@ -919,7 +961,7 @@ def request_product(product_id):
             product_id=product_id
             )
         )
-    # check if they already requested itt
+    # check if they've already requested it - so users can't spam requests
     existing = query_db(
         """
         SELECT * 
@@ -941,10 +983,12 @@ def request_product(product_id):
         )
     offer_price = request.form["offer"]
 
+    # anything the user wants to say to the seller
     message = request.form.get("message", "")
 
     db = get_db()
 
+    # add request to db
     cursor = db.execute(
         """
         INSERT INTO offers (
@@ -968,6 +1012,7 @@ def request_product(product_id):
     )
     offer_id = cursor.lastrowid
 
+    # insert into alerts page to tell seller of the offer
     db.execute(
         """
         INSERT INTO alerts (
@@ -996,7 +1041,7 @@ def request_product(product_id):
     )
 
 
-
+# request route, found in notification page for sellers
 @app.route("/requests")
 def requests_page():
 
@@ -1006,6 +1051,7 @@ def requests_page():
         flash("You must be logged in to see requests.")
         return redirect(url_for("login"))
     
+    # get offer information from db
     offers = query_db(
         """
         SELECT offers.*, 
@@ -1023,6 +1069,7 @@ def requests_page():
         """, (user_id,)
     )
     locations = query_db("SELECT * FROM locations ORDER BY location_name")
+
     return render_template(
         "requests_signed_in.html", 
         offers=offers, 
@@ -1030,31 +1077,38 @@ def requests_page():
     )
 
 
-
+# seller approving product offer page
 @app.route("/approve_request/<int:offer_id>", methods=["POST"])
 def approve_request(offer_id):
 
     seller_id = session.get("user_id")
 
+    # must be logged in as seller to approve
     if not seller_id:
         flash("You must be logged in as seller to approve requests.")
         return redirect(url_for("login"))
     
+    # meeting location to buy to product in person
     location_id = request.form["meeting_location"]
 
+    # seller message to byer
     seller_message = request.form["seller_message"]
 
+    # more varchar limits
     if len(seller_message) > 200 or len(seller_message) < 10:
         flash("Seller message must be between 10 and 200 characters.")
         return redirect(url_for("requests_page"))
     
+    # meetup time to buy product in person
     meetup_time = request.form["meetup_time"]
 
-    if meetup_time < date.today().isoformat():
+    # making sure meetup date has not already passed
+    if meetup_time <= date.today().isoformat():
         flash("Meetup time cannot be in the past.")
         return redirect(url_for("requests_page"))
     
     db = get_db()
+
     # find the offer make sure it belongs to this seller
     offer = query_db(
         """
@@ -1086,7 +1140,7 @@ def approve_request(offer_id):
         seller_id
         )
     )
-    # meetup
+    # create meetup
     db.execute(
         """
         INSERT INTO meetups (
@@ -1104,7 +1158,7 @@ def approve_request(offer_id):
         "scheduled"
         )
     )
-    # ntify buyer
+    # notify buyer
     db.execute(
         """
         INSERT INTO alerts (
@@ -1137,7 +1191,7 @@ def approve_request(offer_id):
 
 
 
-# deletd product ruote heree
+# seller deleting product route
 @app.route("/delete_product/<int:product_id>", methods=["POST"])
 def delete_product(product_id):
 
@@ -1156,12 +1210,14 @@ def delete_product(product_id):
         (product_id, user_id), 
         one=True
     )
+    # if the product is not the seller's product
     if not product:
         flash("You do not have permission to delete this product.")
         return redirect(url_for("home_signed_in"))
     
     db = get_db()
 
+    # change product status into deleted
     db.execute(
         "UPDATE products SET status = 'deleted' WHERE product_id = ?", 
         (product_id,)
@@ -1176,7 +1232,7 @@ def delete_product(product_id):
 
 
 
-# change status to sold and back alr route
+# toggle product status from available to sold and back route
 @app.route("/change_product_status/<int:product_id>", methods=["POST"])
 def change_product_status(product_id):
 
@@ -1196,27 +1252,31 @@ def change_product_status(product_id):
         (product_id, user_id),
         one=True
     )
+    # if user is not the seller of the product
     if not product:
         flash("You do not have permission to update this product.")
         return redirect(url_for("home_signed_in"))
-    
+
+    # if product has already been deleted
     if product["status"] == "deleted":
         flash("This product has been deleted and cannot be updated.")
         return redirect(url_for(
             "product_signed_in", 
             product_id=product_id)
         )
-    
+    # if product marked as available, change status to sold
     if product["status"] == "available":
         new_status = "sold"
         flash_message = "Product has been marked as sold!"
 
+    # the other way around
     elif product["status"] == "sold":
         new_status = "available"
         flash_message = "Product is available for sale again!"
 
     db = get_db()
 
+    # change status in db
     db.execute(
         """
         UPDATE products 
@@ -1235,13 +1295,15 @@ def change_product_status(product_id):
 
 
 
+# ADMIN ROUTES
 
-# admin routes
+# admin-specific page
 @app.route("/admin")
 def admin_dashboard():
 
     user_id = session.get("user_id")
 
+    # has to login first
     if not user_id:
         flash("You must be logged in to access the admin page.")
         return redirect(url_for("login"))
@@ -1251,11 +1313,12 @@ def admin_dashboard():
         (user_id,), 
         one=True
     )
-
+    # has to be logged in with admin account second
     if not user or user["is_admin"] != 1:
         flash("You do not have permission to access the admin page.")
         return redirect(url_for("home_signed_in"))
-    
+
+    # show new product users have added, for admin to approve and release them to be viewed by the public
     pending_products = query_db(
         """
         SELECT products.*, 
@@ -1267,6 +1330,7 @@ def admin_dashboard():
         ORDER BY products.date_posted DESC
         """
     )
+    # any new product reports made by users
     reports = query_db(
         """
         SELECT reports.*, 
@@ -1281,6 +1345,7 @@ def admin_dashboard():
         ORDER BY reports.date_reported DESC
         """
     )
+    # keeping track of all users in toi market
     users = query_db(
         """
         SELECT * 
@@ -1297,6 +1362,7 @@ def admin_dashboard():
 
 
 
+# admin approving new products to be publicly viewed
 @app.route("/admin/approve_product/<int:product_id>", methods=["POST"])
 def approve_product(product_id):
 
@@ -1315,7 +1381,7 @@ def approve_product(product_id):
         (user_id,),
         one=True
     )
-
+    # check if user is admin
     if not admin or admin["is_admin"] != 1:
         flash("You do not have permission to do this.")
         return redirect(url_for("home_signed_in"))
@@ -1335,7 +1401,8 @@ def approve_product(product_id):
     if not product:
         flash("Product not found.")
         return redirect(url_for("admin_dashboard"))
-    
+
+    # approve and change product status into available
     db.execute(
         """
         UPDATE products 
@@ -1344,6 +1411,7 @@ def approve_product(product_id):
         """,
         (product_id,)
     )
+    # tell seller that their product is now available through notification page
     db.execute(
         """
         INSERT INTO admin_notifications (
@@ -1367,13 +1435,13 @@ def approve_product(product_id):
 
 
 
-
+# if admin doesn't like new product so they don't approve it or they delete a reported product
 @app.route("/admin/delete_product/<int:product_id>", methods=["POST"])
 def admin_delete_product(product_id):
 
-    admin_id = session.get("user_id")
+    user_id = session.get("user_id")
 
-    if not admin_id:
+    if not user_id:
         flash("You must be logged in to delete products.")
         return redirect(url_for("login"))
     
@@ -1383,10 +1451,10 @@ def admin_delete_product(product_id):
         FROM users 
         WHERE user_id = ?
         """, 
-        (admin_id,), 
+        (user_id,), 
         one=True
     )
-
+    # only admin route
     if not admin or admin["is_admin"] != 1:
         flash("You do not have permission to do this.")
         return redirect(url_for("home_signed_in"))
@@ -1406,8 +1474,8 @@ def admin_delete_product(product_id):
         return redirect(url_for("admin_dashboard"))
     
     db = get_db()
-    # delete/hide product
 
+    # delete/hide product by changing status to 'deleted'
     db.execute(
         """
         UPDATE products 
@@ -1446,7 +1514,7 @@ def admin_delete_product(product_id):
 
 
 
-
+# toggling users from deleted (actually, disabled) to enabled again, and vice versa
 @app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
 def admin_delete_user(user_id):
 
@@ -1469,11 +1537,13 @@ def admin_delete_user(user_id):
     if not admin or admin["is_admin"] != 1:
         flash("You do not have permission to do this.")
         return redirect(url_for("home_signed_in"))
-    
+
+    # prevent admin account from being disable
     if user_id == admin_id:
-        flash("You cannot delete your own admin account.")
+        flash("You cannot disable your own admin account.")
         return redirect(url_for("admin_dashboard"))
     
+    # list of all users in db
     user = query_db(
         """
         SELECT * 
@@ -1490,6 +1560,7 @@ def admin_delete_user(user_id):
     
     db = get_db()
 
+    # if user account is not disabled already
     if user["is_active"] == 1:
         db.execute(
             """
@@ -1501,6 +1572,7 @@ def admin_delete_user(user_id):
         )
         flash(f"{user['username']}'s account has been disabled.")
 
+    # if user account is already disabled
     else:
         db.execute(
             """
@@ -1536,20 +1608,22 @@ def report_product(product_id):
         (product_id,),
         one=True
     )
-
+    # product to report has to exist
     if not product:
         flash("Product not found.")
         return redirect(url_for("home_signed_in"))
     
     reason = request.form.get("reason", "").strip()
 
-    if len(reason) > 100 or len(reason) < 10:
-        flash("Reason must be between 10 and 100 characters.")
+    # product reason should be short enough to be readable  
+    if len(reason) > 500 or len(reason) < 10:
+        flash("Reason must be between 10 and 500 characters.")
         return redirect(url_for(
             "product_signed_in", 
             product_id=product_id
             )
         )
+    # has to have a reson to report product
     if not reason:
         flash("Please provide a reason for the report.")
         return redirect(url_for(
@@ -1557,6 +1631,7 @@ def report_product(product_id):
             product_id=product_id
             )
         )
+    # sellers can't report their own product
     if product["seller_key"] == user_id:
         flash("You cannot report your own product.")
         return redirect(url_for(
@@ -1564,6 +1639,7 @@ def report_product(product_id):
             product_id=product_id
             )
         )
+    # if user has already reported the product
     existing_report = query_db(
         """
         SELECT * 
@@ -1584,6 +1660,7 @@ def report_product(product_id):
     
     db = get_db()
 
+    # add report into reports db to be shown to admin
     db.execute(
         """
         INSERT INTO reports (
@@ -1601,16 +1678,14 @@ def report_product(product_id):
             date.today().isoformat()
         )
     )
-    
-
     db.commit()
     flash("Product reported to an administrator.")
+
     return redirect(url_for(
         "product_signed_in", 
         product_id=product_id
         )
     )
-
 
 
 
