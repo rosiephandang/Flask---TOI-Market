@@ -216,23 +216,6 @@ def product(product_id):
 
 
 
-# map page showing meeting locations non-authenticated 
-@app.route("/meeting/<int:location_id>")
-def meeting(location_id):
-
-    location = query_db(
-        "SELECT * FROM locations WHERE location_id = ?", 
-        (location_id,),
-        one=True
-    )
-
-    return render_template(
-        "meeting.html", 
-        location=location
-    )
-
-
-
 # about us info non-authenticated page
 @app.route("/about_us/<int:user_id>")
 def about_us(user_id):
