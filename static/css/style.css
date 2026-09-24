@@ -979,3 +979,20 @@ textarea.reasonr{
 .add_product_button a{
     border-radius: 12px;
 }
+
+.page-title {
+    font-size: 42px;
+    font-weight: 600;
+    margin-top: 0;
+    color: var(--forest);
+    background-color: var(--mist);
+    padding: 15px;
+    border: 3px solid var(--forest);
+    border-radius: 15px;
+}
+
+.page-title:hover {
+    background-color: var(--forest);
+    color: var(--mist);
+    cursor: pointer;
+}
